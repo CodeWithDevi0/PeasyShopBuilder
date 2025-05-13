@@ -77,7 +77,7 @@ $stmt->close();
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-success px-4 py-2">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="">
+            <a class="navbar-brand d-flex align-items-center" href="index.php">
                 <img src="../assets/nobg.png" alt="Logo" width="60" height="60" class="me-2">
                 <strong class="text-white">PEasy</strong>
             </a>
