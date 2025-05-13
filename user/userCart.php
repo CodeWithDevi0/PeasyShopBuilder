@@ -17,6 +17,8 @@ $lastname = $_SESSION['user_lastname'] ?? 'Guest';
 $username = $_SESSION['user_username'] ?? 'Guest';
 $email = $_SESSION['user_email'] ?? 'Guest';
 $_SESSION['profile_picture'] = $_SESSION['profile_picture'] ?? 'default.jpg';
+$_SESSION['user_id'] = $fetchedUser['id']; // Set this at login
+
 
 // Add to cart
 if (isset($_POST['add_to_cart'])) {

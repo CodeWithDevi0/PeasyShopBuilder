@@ -14,7 +14,7 @@ body{
   width: 100%;
   padding: 0 10px;
   position: relative;
-  background: url("../../bgLogIn.png") no-repeat center center;
+  background: url("../../assets/bgLogIn.png") no-repeat center center;
   background-size: cover;
 }
 .container {

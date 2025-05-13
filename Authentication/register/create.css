@@ -6,7 +6,7 @@ body {
     align-items: center;
     min-height: 100vh;
     font-family: 'Jost', sans-serif;
-    background-image: url("../../authFORM.png");
+    background-image: url("../../assets/authFORM.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
