@@ -1,0 +1,227 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@200;300;400;500;600;700&display=swap");
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Open Sans", sans-serif;
+}
+body{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  padding: 0 10px;
+  position: relative;
+  background: url("../../bgLogIn.png") no-repeat center center;
+  background-size: cover;
+}
+.container {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 15px;
+    padding: 30px;
+    padding-top: 7%;
+    /* border: 1px solid rgba(0, 0, 0, 0.5); */
+    box-shadow: 5px 15px 20px #000000;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: #ffffff;
+  }
+  .container i{
+    font-size: 2.5rem;
+    color: #ffffff;
+    display: unset;
+    
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    font-family: "Open Sans", sans-serif;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #000000;
+  }
+  
+  
+  .textbox {
+    position: relative;
+    border-bottom: 2px solid #000000;
+    margin: 15px 0;
+  }
+  
+  .textbox label {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    color: #000000;
+    font-size: 16px;
+    pointer-events: none;
+    transition: 0.3s;
+  }
+  
+  .textbox input {
+    width: 100%;
+    height: 40px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #000000;
+  }
+  
+  .textbox input:focus ~ label,
+  .textbox input:valid ~ label {
+    font-size: 0.8rem;
+    top: 10px;
+    transform: translateY(-120%);
+  }
+  
+  .forget {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 0 10px 0;
+    color: #000000;
+  }
+  
+  #remember {
+    accent-color: green;
+
+  }
+
+  .remember {
+    margin: 0;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1rem;   
+      
+  
+  }
+  
+  .forget label {
+    display: flex;
+    align-items: center;
+  }
+  
+  .forget label p {
+    margin-left: 8px;
+  }
+  .forgot{
+    margin: 10px 0 25px 100px;
+  }
+  .forgot :hover{
+    text-decoration: underline;
+    color: green;
+  }
+  
+  .container a {
+    color: #000000;
+    text-decoration: none;
+  }
+  
+  .container a:hover {
+    text-decoration: underline;
+  }
+  
+  
+  #butt {
+    color: #ffffff;
+    font-weight: 600;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 16px;
+    border: 2px solid transparent;
+    transition: 0.3s ease;
+  }
+  
+  #butt:hover {
+    background: #015c3e;
+    color: #ffffff;
+    border-color: #000000;
+  }
+  
+  .register {
+    text-align: center;
+    margin-top: 30px;
+    color: #000000;
+  }
+  .register a:hover {
+    text-decoration: underline;
+    color: green;
+  }
+
+  /* === Popup message styles (copied from create.css) === */
+
+.popup-message {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+  z-index: 9999;
+  animation: fadeOut 5s forwards;
+  opacity: 1;
+}
+
+.popup-message.success {
+  background-color: #ffffff;
+  color: #14A44D;
+}
+
+.popup-message.error {
+  background-color: #ffffff;
+  color: #DC4C64;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; display: none; }
+}
+
+  /* Responsive adjustments */
+  @media screen and (max-width: 600px) {
+    .container {
+        width: 100%;
+        padding: 20px;
+    }
+  
+    h2 {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+  
+    .textbox label {
+        font-size: 14px;
+    }
+  
+    .textbox input {
+        height: 35px;
+        font-size: 14px;
+    }
+  
+    button {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+  
+    .forget {
+        margin: 20px 0 30px 0;
+    }
+  
+    .forget label p {
+        margin-left: 5px;
+    }
+  }

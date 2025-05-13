@@ -1,0 +1,43 @@
+.custom-table {
+    color: #000000;
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .custom-table thead {
+    background-color: transparent;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+  }
+
+  .custom-table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .custom-table td,
+  .custom-table th {
+    padding: 1.25rem 1rem;
+    vertical-align: middle;
+  }
+
+  .subtext {
+    font-size: 0.8rem;
+    color: #777;
+  }
+
+  .details-link {
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #aaa;
+    letter-spacing: 0.05em;
+  }
+
+  .custom-table-container {
+    background-color: #333;
+    padding: 2rem;
+    border-radius: 1rem;
+  }

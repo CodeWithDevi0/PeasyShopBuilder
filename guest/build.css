@@ -1,0 +1,50 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.navbar {
+    height: 70px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+
+  
+.navbar-brand img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+  }
+
+nav{
+    display: flex;
+}
+
+nav.navbar{
+    background-color: rgb(5, 165, 90) !important;
+    display: flex;
+    justify-content: center;
+}
+body {
+    background-color: #111;
+    color: #fff;
+  }
+  
+  label {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  .form-select {
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #444;
+  }
+  
+  .form-select option {
+    background-color: #222;
+    color: #fff;
+  }
+  

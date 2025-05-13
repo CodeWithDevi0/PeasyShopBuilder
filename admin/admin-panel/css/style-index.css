@@ -1,0 +1,79 @@
+/* General Styles */
+.chart-container {
+    height: 300px;
+    padding: 20px 20px 30px 20px; /* Reduced bottom padding */
+    position: relative;
+}
+
+.bar-chart {
+    display: flex;
+    justify-content: space-around;
+    height: 100%;
+    gap: 20px;
+    position: relative;
+    align-items: flex-end; /* Align items to bottom */
+    padding-bottom: 25px; /* Space for labels */
+}
+
+.bar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 60px;
+}
+
+.bar {
+    width: 100%;
+    background-color: #198754;
+    border-radius: 4px 4px 0 0;
+    position: relative; /* Changed from absolute */
+    transition: all 0.3s ease;
+}
+
+.bar-value {
+    position: absolute;
+    top: -25px;
+    font-size: 14px;
+    color: #198754;
+    font-weight: 500;
+}
+
+.bar-label {
+    position: absolute;
+    bottom: -25px; /* Adjusted position */
+    font-size: 12px;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+.bar:hover {
+    background-color: #157347;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    z-index: 1000;
+}
+
+.sidebar .nav-link {
+    padding: 0.5rem 1rem;
+    transition: all 0.3s;
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Adjust main content margin to accommodate sidebar */
+.container {
+    margin-left: 270px;
+    width: calc(100% - 290px);
+}
+
+/* Add Bootstrap Icons */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");

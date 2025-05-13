@@ -1,0 +1,18 @@
+.hero {
+  background-image: url("../assets/comp3.jpg"); /* Change this to your image */
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.hero h1 {
+  font-size: 4rem;
+  font-weight: bold;
+}
+.hero p {
+  font-size: 1.5rem;
+}
