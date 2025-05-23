@@ -17,7 +17,6 @@ $lastname = $_SESSION['user_lastname'] ?? 'Guest';
 $username = $_SESSION['user_username'] ?? 'Guest';
 $email = $_SESSION['user_email'] ?? 'Guest';
 $_SESSION['profile_picture'] = $_SESSION['profile_picture'] ?? 'default.jpg';
-
 ?>
 
 <!DOCTYPE html>
@@ -30,8 +29,7 @@ $_SESSION['profile_picture'] = $_SESSION['profile_picture'] ?? 'default.jpg';
     <link rel="stylesheet" href="profile.js">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">  
 </head>
 <body> 
 <nav class="navbar navbar-expand-lg bg-success px-4 py-2">
