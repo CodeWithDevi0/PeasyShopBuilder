@@ -1,6 +1,12 @@
 <?php
 require_once '../database/database.php';
 session_start();
+// if (!isset($_SESSION['user_id'])) {
+//     $_SESSION['user_id'] = 123;
+//     echo "Session started and user_id set.";
+// } else {
+//     echo "User ID is still set: " . $_SESSION['user_id'];
+// }   
 
 // Database connection
 $db_host = "127.0.0.1";

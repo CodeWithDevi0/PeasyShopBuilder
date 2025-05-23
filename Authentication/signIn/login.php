@@ -30,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_lastname'] = $user['l_name']; 
             $_SESSION['user_username'] = $user['username']; 
             $_SESSION['user_email'] = $user['email']; 
+            $_SESSION['user_id'] = $user['id']; // ✅ This is what your profile page needs
+
 
             header("Location: ../../user/index.php");
             exit();

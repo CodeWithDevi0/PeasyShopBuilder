@@ -19,34 +19,6 @@ $_SESSION['profile_picture'] = $_SESSION['profile_picture'] ?? 'default.jpg';
 $address = '';
 $contact_number = '';
 $user_id = $_SESSION['user_id'];
-// Fetch orders for the logged-in user
-$orders = [];
-$order_items_map = [];
-
-$stmt = $conn->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$orders_result = $stmt->get_result();
-
-while ($order = $orders_result->fetch_assoc()) {
-    $orders[] = $order;
-
-    // Fetch order items for each order
-    $order_id = $order['id'];
-    $item_stmt = $conn->prepare("
-        SELECT oi.*, p.name 
-        FROM order_items oi 
-        JOIN products p ON oi.product_id = p.id 
-        WHERE oi.order_id = ?
-    ");
-    $item_stmt->bind_param("i", $order_id);
-    $item_stmt->execute();
-    $item_result = $item_stmt->get_result();
-    $order_items_map[$order_id] = $item_result->fetch_all(MYSQLI_ASSOC);
-    $item_stmt->close();
-}
-
-
 if (!is_numeric($user_id) || $user_id <= 0) {
     die("Invalid user session.");
 }
@@ -93,6 +65,7 @@ if ($profile = $result->fetch_assoc()) {
 $stmt->close();
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -113,7 +86,7 @@ $stmt->close();
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-success px-4 py-2">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="index.php">
+            <a class="navbar-brand d-flex align-items-center" href="">
                 <img src="../assets/nobg.png" alt="Logo" width="60" height="60" class="me-2">
                 <strong class="text-white">PEasy</strong>
             </a>
@@ -157,7 +130,7 @@ $stmt->close();
                 <div class="profile-sidebar rounded p-3">
                     <div class="text-center mb-4">
                         <div class="position-relative d-inline-block">
-                            <i class="bi bi-person-fill-gear fs-1 mx-2"></i>
+                        <i class="bi bi-person-fill-gear fs-1 mx-2"></i>
                             <!-- <img src="/api/placeholder/200/200" alt="Profile Picture" class="profile-picture mb-3">
                             <label for="profile-upload"
                                 class="position-absolute bottom-0 end-0 bg-white rounded-circle p-2 shadow-sm edit-icon">
@@ -324,7 +297,7 @@ $stmt->close();
     echo 'Login';
 }
 ?>
-            " disabled>
+            "disabled>
                                                 <span class="input-group-text edit-icon">
                                                     <i class="bi bi-pencil"></i>
                                                 </span>
@@ -337,7 +310,7 @@ $stmt->close();
                                         <div class="mb-3">
                                             <label class="form-label">Date of Birth</label>
                                             <div class="input-group">
-                                                <input type="date" class="form-control" value="1990-01-15" disabled>
+                                                <input type="date" class="form-control" value="" disabled>
                                                 <span class="input-group-text edit-icon">
                                                     <i class="bi bi-pencil"></i>
                                                 </span>
@@ -410,139 +383,104 @@ $stmt->close();
 
                             <!-- Addresses Tab -->
                             <div class="tab-pane fade" id="addresses">
-                                <?php if (isset($_SESSION['address_message'])): ?>
-                                <div class="alert alert-<?= $_SESSION['address_status'] ?> alert-dismissible fade show"
-                                    role="alert">
-                                    <?= $_SESSION['address_message'] ?>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                        aria-label="Close"></button>
-                                </div>
-                                <?php 
+                            <div class="container mt-4" id="addresses">
+    <!-- Show feedback messages if they exist -->
+    <?php if (isset($_SESSION['address_message'])): ?>
+        <div class="alert alert-<?= $_SESSION['address_status'] ?> alert-dismissible fade show" role="alert">
+            <?= $_SESSION['address_message'] ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <?php 
         // Clear the message after displaying it
         unset($_SESSION['address_message']); 
         unset($_SESSION['address_status']);
         ?>
-                                <?php endif; ?>
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h4 class="mb-0">My Addresses</h4>
-                                    <button class="btn btn-success" data-bs-toggle="modal"
-                                        data-bs-target="#addAddressModal">
-                                        <i class="bi bi-plus-lg me-1"></i> Add New Address
-                                    </button>
-                                </div>
+    <?php endif; ?>
 
-                                <?php if (empty($address) && empty($contact_number)): ?>
-                                <div class="alert alert-info">You have not set a default address or contact number.
-                                    Please add one below.</div>
-                                <?php endif; ?>
-
-                                <!-- Default Address -->
-                                <div class="card mb-4">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">Default Address</h5>
-                                        <?php if ($address || $contact_number): ?>
-                                        <span class="badge bg-success">Default</span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="card-body">
-                                        <p><strong>Name:</strong> <?= htmlspecialchars($firstname . ' ' . $lastname) ?>
-                                        </p>
-                                        <p><strong>Address:</strong>
-                                            <?= $address ? htmlspecialchars($address) : 'Not set' ?></p>
-                                        <p><strong>Contact Number:</strong>
-                                            <?= $contact_number ? htmlspecialchars($contact_number) : 'Not set' ?></p>
-
-                                        <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal"
-                                            data-bs-target="#addAddressModal">
-                                            <?= ($address || $contact_number) ? 'Edit' : 'Add' ?> Address
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Orders Tab -->
-<div class="tab-pane fade" id="orders">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0">My Orders</h4>
+        <h4 class="mb-0">My Addresses</h4>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+            <i class="bi bi-plus-lg me-1"></i> Add New Address
+        </button>
     </div>
 
-    <?php if (count($orders) === 0): ?>
-        <p>You have no orders yet.</p>
-    <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Date</th>
-                        <th>Items</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($orders as $order): ?>
-                        <tr>
-                            <td>#<?= htmlspecialchars($order['id']) ?></td>
-                            <td><?= date("M j, Y", strtotime($order['created_at'])) ?></td>
-                            <td><?= count($order_items_map[$order['id']]) ?> items</td>
-                            <td>₱<?= number_format($order['total'], 2) ?></td>
-                            <td>
-                                <?php
-                                    $status = $order['shipping_status'];
-                                    $badge = 'secondary';
-                                    if ($status === 'Delivered') $badge = 'success';
-                                    elseif ($status === 'Shipped') $badge = 'warning text-dark';
-                                ?>
-                                <span class="badge bg-<?= $badge ?>"><?= htmlspecialchars($status) ?></span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal"
-                                    data-bs-target="#orderDetailsModal<?= $order['id'] ?>">
-                                    View Details
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- Modal for order details -->
-                        <div class="modal fade" id="orderDetailsModal<?= $order['id'] ?>" tabindex="-1"
-                            aria-labelledby="orderDetailsLabel<?= $order['id'] ?>" aria-hidden="true">
-                            <div class="modal-dialog modal-lg modal-dialog-centered" style="width: 25%;">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="orderDetailsLabel<?= $order['id'] ?>">Order #<?= $order['id'] ?> Details</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body ">
-                                        <p style="display: flex; justify-content: space-between; width: 100%;"><strong>Date:</strong> <?= date("M j, Y", strtotime($order['created_at'])) ?></p>
-                                        <p style="display: flex; justify-content: space-between; width: 100%;"><strong>Total:</strong> ₱<?= number_format($order['total'], 2) ?></p>
-                                        <p style="display: flex; justify-content: space-between; width: 100%;"><strong>Status:</strong> <?= htmlspecialchars($order['shipping_status']) ?></p>
-                                        <hr>
-                                        <h6>Items:</h6>
-                                        <ul class="list-group">
-                                            <?php foreach ($order_items_map[$order['id']] as $item): ?>
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <?= htmlspecialchars($item['name']) ?> × <?= $item['quantity'] ?>
-                                                    <span>₱<?= number_format($item['price'], 2) ?></span>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+    <?php if (empty($address) && empty($contact_number)): ?>
+        <div class="alert alert-info">You have not set a default address or contact number. Please add one below.</div>
     <?php endif; ?>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Default Address</h5>
+            <?php if ($address || $contact_number): ?>
+                <span class="badge bg-success">Saved</span>
+            <?php endif; ?>
+        </div>
+        <div class="card-body">
+            <p><strong>Name:</strong> <?= htmlspecialchars($firstname . ' ' . $lastname) ?></p>
+            <p><strong>Address:</strong> <?= $address ? htmlspecialchars($address) : 'Not set' ?></p>
+            <p><strong>Contact Number:</strong> <?= $contact_number ? htmlspecialchars($contact_number) : 'Not set' ?></p>
+    
+            <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                <?= ($address || $contact_number) ? 'Edit' : 'Add' ?> Address
+            </button>
+        </div>
+    </div>
 </div>
 
+
+                            <!-- Orders Tab -->
+                            <div class="tab-pane fade" id="orders">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h4 class="mb-0">My Orders</h4>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Date</th>
+                                                <th>Items</th>
+                                                <th>Total</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#PE12345</td>
+                                                <td>May 2, 2025</td>
+                                                <td>3 items</td>
+                                                <td>$125.99</td>
+                                                <td><span class="badge bg-success">Delivered</span></td>
+                                                <td>
+                                                    <a href="#" class="btn btn-sm btn-outline-success">View Details</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#PE12344</td>
+                                                <td>Apr 25, 2025</td>
+                                                <td>1 item</td>
+                                                <td>$49.99</td>
+                                                <td><span class="badge bg-warning text-dark">Shipped</span></td>
+                                                <td>
+                                                    <a href="#" class="btn btn-sm btn-outline-success">View Details</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#PE12343</td>
+                                                <td>Apr 15, 2025</td>
+                                                <td>2 items</td>
+                                                <td>$79.98</td>
+                                                <td><span class="badge bg-success">Delivered</span></td>
+                                                <td>
+                                                    <a href="#" class="btn btn-sm btn-outline-success">View Details</a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
 
                             <!-- Wishlist Tab -->
                             <div class="tab-pane fade" id="wishlist">
@@ -600,7 +538,10 @@ $stmt->close();
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -608,7 +549,6 @@ $stmt->close();
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="signOutModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -636,34 +576,32 @@ $stmt->close();
     </div>
 
     <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="POST" action="profile.php#addresses">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Add / Edit Address</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog">
+        <form method="POST" action="profile.php#addresses">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add / Edit Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea name="address" id="address" class="form-control" required><?php echo htmlspecialchars($address); ?></textarea>
                     </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Address</label>
-                            <textarea name="address" id="address" class="form-control"
-                                required><?php echo htmlspecialchars($address); ?></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="contact_number" class="form-label">Contact Number</label>
-                            <input type="text" name="contact_number" id="contact_number" class="form-control" required
-                                value="<?php echo htmlspecialchars($contact_number); ?>">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Save Address</button>
+                    <div class="mb-3">
+                        <label for="contact_number" class="form-label">Contact Number</label>
+                        <input type="text" name="contact_number" id="contact_number" class="form-control" required value="<?php echo htmlspecialchars($contact_number); ?>">
                     </div>
                 </div>
-            </form>
-        </div>
+                <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save Address</button>
+                </div>
+            </div>
+        </form>
     </div>
+</div>
 
-    <footer class="bg-dark text-white py-4 mt-5 m">
+    <footer class="bg-dark text-white py-4 mt-5 m" >
         <div class="container" style="margin-top: 10%;">
             <div class="row">
                 <div class="col-md-4 mb-3">
@@ -690,13 +628,14 @@ $stmt->close();
             <hr>
             <p class="text-center mb-0">&copy; 2025 PEasy. All rights reserved.</p>
         </div>
-    </footer>
+</footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-VpGV...YOUR_HASH..." crossorigin="anonymous"></script>
+
 </body>
 
 </html>

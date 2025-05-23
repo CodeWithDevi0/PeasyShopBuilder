@@ -17,40 +17,66 @@ $lastname = $_SESSION['user_lastname'] ?? 'Guest';
 $username = $_SESSION['user_username'] ?? 'Guest';
 $email = $_SESSION['user_email'] ?? 'Guest';
 $_SESSION['profile_picture'] = $_SESSION['profile_picture'] ?? 'default.jpg';
-$_SESSION['user_id'] = $fetchedUser['id']; // Set this at login
+// $_SESSION['user_id'] = $fetchedUser['id']; // Set this at login
 
 
 // Add to cart
 if (isset($_POST['add_to_cart'])) {
-    $id = $_POST['product_id'];
-    if (!isset($_SESSION['cart'][$id])) {
-        $_SESSION['cart'][$id] = 1;
+    $product_id = intval($_POST['product_id']);
+    $stmt = $conn->prepare("SELECT quantity FROM user_cart WHERE user_id = ? AND product_id = ?");
+    $stmt->bind_param("ii", $user_id, $product_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    if ($res->num_rows > 0) {
+        $stmt = $conn->prepare("UPDATE user_cart SET quantity = quantity + 1 WHERE user_id = ? AND product_id = ?");
+        $stmt->bind_param("ii", $user_id, $product_id);
     } else {
-        $_SESSION['cart'][$id]++;
+        $stmt = $conn->prepare("INSERT INTO user_cart (user_id, product_id, quantity) VALUES (?, ?, 1)");
+        $stmt->bind_param("ii", $user_id, $product_id);
     }
+    $stmt->execute();
     header("Location: userCart.php");
     exit;
 }
 
 // Update quantity
 if (isset($_POST['update_quantity'])) {
-    $id = $_POST['product_id'];
+    $product_id = intval($_POST['product_id']);
     $qty = max(1, intval($_POST['quantity']));
-    $_SESSION['cart'][$id] = $qty;
+    $stmt = $conn->prepare("UPDATE user_cart SET quantity = ? WHERE user_id = ? AND product_id = ?");
+    $stmt->bind_param("iii", $qty, $user_id, $product_id);
+    $stmt->execute();
 }
 
 // Remove item
 if (isset($_GET['remove'])) {
-    unset($_SESSION['cart'][$_GET['remove']]);
+    $product_id = intval($_GET['remove']);
+    $stmt = $conn->prepare("DELETE FROM user_cart WHERE user_id = ? AND product_id = ?");
+    $stmt->bind_param("ii", $user_id, $product_id);
+    $stmt->execute();
 }
 
 // Clear cart
 if (isset($_GET['clear'])) {
-    unset($_SESSION['cart']);
+    $stmt = $conn->prepare("DELETE FROM user_cart WHERE user_id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
 }
 
 $cartItems = [];
 $total = 0;
+
+$stmt = $conn->prepare("SELECT p.*, uc.quantity FROM user_cart uc JOIN products p ON uc.product_id = p.id WHERE uc.user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    $row['subtotal'] = $row['price'] * $row['quantity'];
+    $cartItems[] = $row;
+    $total += $row['subtotal'];
+}   
 
 if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     $ids = implode(",", array_map('intval', array_keys($_SESSION['cart'])));
@@ -82,11 +108,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['address'], $_POST['co
 }
 
 if (isset($_POST['checkout']) && !empty($cartItems)) {
-    $stmt = $conn->prepare("INSERT INTO orders (user_id, total, created_at) VALUES (?, ?, NOW())");
-    $stmt->bind_param("id", $user_id, $total);
+    $address = $_POST['address'];
+    $contact_number = $_POST['contact_number'];
+
+    $stmt = $conn->prepare("INSERT INTO orders (user_id, total, address, contact_number, created_at) VALUES (?, ?, ?, ?, NOW())");
+    $stmt->bind_param("idss", $user_id, $total, $address, $contact_number);
     $stmt->execute();
     $order_id = $stmt->insert_id;
     $stmt->close();
+
 
     $stmtItem = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
     foreach ($cartItems as $item) {
@@ -118,7 +148,7 @@ if (isset($_POST['checkout']) && !empty($cartItems)) {
 
 <nav class="navbar navbar-expand-lg bg-success px-4 py-2">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="">
+            <a class="navbar-brand d-flex align-items-center" href="index.php">
                 <img src="../assets/nobg.png" alt="Logo" width="60" height="60" class="me-2">
                 <strong class="text-white">PEasy</strong>
             </a>
@@ -184,7 +214,7 @@ if (isset($_POST['checkout']) && !empty($cartItems)) {
 
         <div class="text-end">
             
-            <form method="post" class="mt-3">
+            <form method="post" action="placeOrder.php" class="mt-3">
     <input type="hidden" name="checkout" value="1">
     <input type="text" name="address" required placeholder="Enter Address (Note: You may get banned or blacklisted if you submit fraud or false informations!)" class="form-control mb-2">
     <input type="number" name="contact_number" required placeholder="Enter Contact Number (Note: You may get banned or blacklisted if you submit fraud or  false informations!)" class="form-control mb-2">
