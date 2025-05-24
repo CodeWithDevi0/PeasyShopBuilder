@@ -1,6 +1,27 @@
 <?php
 session_start();
-require_once '../database/config.php';
+require '../database/config.php';
+
+try {
+    // Get dashboard stats
+    $stmt = $pdo->query("CALL sp_get_dashboard_stats()");
+    $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->closeCursor(); // Important: close the cursor for next query
+
+    // Get recent products
+    $stmt = $pdo->query("CALL sp_get_recent_products()");
+    $recentProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->closeCursor();
+
+    // Get weekly orders for chart
+    $stmt = $pdo->query("CALL sp_get_weekly_orders()");
+    $weeklyOrders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->closeCursor();
+
+} catch (PDOException $e) {
+    error_log("Error fetching dashboard data: " . $e->getMessage());
+    die("An error occurred while loading the dashboard.");
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -74,12 +95,13 @@ require_once '../database/config.php';
         <div class="col-md-4">
             <div class="card border-success shadow-sm">
                 <div class="card-body d-flex align-items-center">
+                    <!-- Total Sales Card -->
                     <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
                         <i class="bi bi-currency-dollar text-success fs-4"></i>
                     </div>
                     <div>
                         <h6 class="card-title text-muted mb-1">Total Sales</h6>
-                        <h4 class="mb-0 text-success">₱69,000</h4>
+                        <h4 class="mb-0 text-success">₱<?php echo number_format($stats['total_sales'], 2); ?></h4>
                     </div>
                 </div>
             </div>
@@ -92,7 +114,10 @@ require_once '../database/config.php';
                     </div>
                     <div>
                         <h6 class="card-title text-muted mb-1">Total Orders</h6>
-                        <h4 class="mb-0 text-success">696,969</h4>
+                        <?php
+                        $orderCount = $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn();
+                        ?>
+                        <h4 class="mb-0 text-success"><?php echo number_format($orderCount); ?></h4>
                     </div>
                 </div>
             </div>
@@ -106,9 +131,9 @@ require_once '../database/config.php';
                     <div>
                         <h6 class="card-title text-muted mb-1">Total Products</h6>
                         <?php
-                        $productCount = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
+                        $productCount = $pdo->query("SELECT COUNT(*) FROM products WHERE status = 1")->fetchColumn();
                         ?>
-                        <h4 class="mb-0 text-success"><?php echo $productCount; ?></h4>
+                        <h4 class="mb-0 text-success"><?php echo number_format($productCount); ?></h4>
                     </div>
                 </div>
             </div>
@@ -147,36 +172,24 @@ require_once '../database/config.php';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        require_once '../database/config.php';
-                        
-                        // Get recent products with brand and category names
-                        $stmt = $pdo->query("
-                            SELECT p.product_id, p.product_name, b.brand_name, c.category_name, p.stocks, p.status 
-                            FROM products p
-                            LEFT JOIN brands b ON p.brand_id = b.brand_id
-                            LEFT JOIN categories c ON p.category_id = c.category_id
-                            ORDER BY p.created_at DESC
-                            LIMIT 5
-                        ");
-
-                        while ($row = $stmt->fetch()) {
+                        <?php foreach ($recentProducts as $row): ?>
+                            <?php
                             $stockStatus = ($row['stocks'] > 0) ? 
                                 '<span class="badge bg-success">In Stock</span>' : 
                                 '<span class="badge bg-danger">Out of Stock</span>';
-                                
-                            echo "<tr>
-                                    <td class='ps-4 text-success'>{$row['product_id']}</td>
-                                    <td>{$row['product_name']}</td>
-                                    <td>{$row['brand_name']}</td>
-                                    <td>{$row['category_name']}</td>
-                                    <td>{$row['stocks']}</td>
-                                    <td class='text-center pe-3'>
-                                        {$stockStatus}
-                                    </td>
-                                </tr>";
-                        }
-                        ?>
+                            
+                            $brandName = $row['brand_name'] ?? 'N/A';
+                            $categoryName = $row['category_name'] ?? 'N/A';
+                            ?>
+                            <tr>
+                                <td class='ps-4 text-success'><?php echo $row['id']; ?></td>
+                                <td><?php echo htmlspecialchars($row['name']); ?></td>
+                                <td><?php echo htmlspecialchars($brandName); ?></td>
+                                <td><?php echo htmlspecialchars($categoryName); ?></td>
+                                <td><?php echo $row['stocks']; ?></td>
+                                <td class='text-center pe-3'><?php echo $stockStatus; ?></td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
@@ -213,14 +226,7 @@ require_once '../database/config.php';
 
 <!-- bar chart -->
 <script>
-    const data = [
-        { date: "Apr 17", value: 40 },
-        { date: "Apr 18", value: 70 },
-        { date: "Apr 19", value: 55 },
-        { date: "Apr 20", value: 90 },
-        { date: "Apr 21", value: 65 },
-    ];
-
+    const data = <?php echo json_encode($weeklyOrders); ?>;
     const maxVal = Math.max(...data.map(d => d.value));
     const chart = document.getElementById("barChart");
 

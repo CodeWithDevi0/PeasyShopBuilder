@@ -104,140 +104,77 @@
   </button>
 </div>
 </div>
-
+<!-- display dri from admin created products -->
 <div class="product-container">
-    <div class="product-card">
-      <img src="../assets/GIGABYTEP650G.png" alt="Product Image">
-      <div class="product-info">
-        <h3 class="product-title">Power Supply</h3>
-        <p class="product-description">A Mid-ranged power supply with 80+ gold rated.</p>
-        <p class="product-price">₱3,000</p>
-        <a href="../signIn/login.php" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add to Cart</a>
-        <a href="../signIn/login.php" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-      </div>
-  </div>
-    <div class="product-card">
-      <img src="../assets/segotepW1.png" alt="Product Image">
-      <div class="product-info">
-        <h3 class="product-title">Segotep W1 PC Case</h3>
-        <p class="product-description">RGB Mid-tower with tempered glass side panel.</p>
-        <p class="product-price">₱1,400</p>
-        <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add to Cart</a>
-        <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-      </div>
-    </div>
-    <div class="product-card" style="padding-top: 20px;">
-      <img src="../assets/samsungEVOSSD.png" alt="Product Image">
-      <div class="product-info">
-        <h3 class="product-title">Samsung EVO 870 SSD</h3>
-        <p class="product-description">M.2 SSD PCIE 4.0 512GB | 1TB Storage</p>
-        <p class="product-price">₱2,800</p>
-        <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add to Cart</a>
-        <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-      </div>
-    </div>
-    <div class="product-card">
-      <img src="../assets/lexarRAM.png" alt="Product Image">
-      <div class="product-info">
-        <h3 class="product-title">Lexar RAM </h3>
-        <p class="product-description">8 GB | 16 GB | Gaming RAM 1600 | 2400 | 3200 | 3600 mhz</p>
-        <p class="product-price">₱899</p>
-        <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add to Cart</a>
-        <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-      </div>
-    </div>
+    <?php
+    require_once '../admin/admin-panel/database/config.php';
     
-  </div>
+    try {
+        $stmt = $pdo->query("CALL sp_get_products()");
+        while ($row = $stmt->fetch()) {
+            echo '<div class="product-card">';
+            if (!empty($row['image'])) {
+                echo '<img src="../admin/admin-panel/' . htmlspecialchars($row['image']) . '" alt="' . htmlspecialchars($row['name']) . '">';
+            } else {
+                echo '<div class="text-center py-5 bg-light">
+                        <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
+                      </div>';
+            }
+            echo '<div class="product-info">
+                    <h3 class="product-title">' . htmlspecialchars($row['name']) . '</h3>
+                    <p class="product-description">' . htmlspecialchars($row['description'] ?? 'No description available') . '</p>
+                    <p class="product-price">₱' . number_format($row['price'], 2) . '</p>
+                    <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add to Cart</a>
+                    <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
+                  </div>';
+            echo '</div>';
+        }
+        $stmt->closeCursor();
+    } catch (PDOException $e) {
+        echo '<div class="alert alert-danger">Error loading products: ' . htmlspecialchars($e->getMessage()) . '</div>';
+    }
+    ?>
+</div>
 <!-- New Arrivals Section -->
 <h2 style="margin: 20px; font-size: 24px;" class="text-center" >NEW ARRIVALS</h2>
 <div class="product-container">
-  <div class="product-card">
-    <img src="../assets/acerLaptop.png" alt="Product Image">
-    <div class="product-info">
-      <h3 class="product-title">Acer Aspire 7 A715-42G</h3>
-      <p class="product-description">AMD Ryzen 7 5700U | NVIDIA GeForce RTX 3050 Ti</p>
-      <p class="product-price">₱40,995.00</p>
-      <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add To Cart</a>
-      <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-    </div>
-  </div>
-  <div class="product-card">
-    <img src="../assets/lenovoLAPTOP.png" alt="Product Image">
-    <div class="product-info">
-      <h3 class="product-title">Lenovo IdeaPad Slim 1 14ALC7</h3>
-      <p class="product-description">AMD Ryzen 5 5500U | 16GB DDR4 RAM | Integrated AMD Radeon Graphics</p>
-      <p class="product-price">₱33,499.00</p>
-      <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add To Cart</a>
-      <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-    </div>
-  </div>
-  <div class="product-card">
-    <img src="../assets/hpLAPTOP.png" alt="Product Image" >
-    <div class="product-info" >
-      <h3 class="product-title">HP Pavilion Laptop 14-dv2097nr</h3>
-      <p class="product-description">14 | Windows 11 Home | Intel®  Core™ i5 | 16GB RAM | 256GB SSD | FHD</p>
-      <p class="product-price">₱38,699.00</p>
-      <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal"s>Add To Cart</a>
-      <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal"s>Buy Now</a>
-    </div>
-  </div>
-  <div class="product-card">
-    <img src="../assets/asusLAPTOP.png" alt="Product Image">
-    <div class="product-info">
-      <h3 class="product-title">Asus 16" Vivobook Wuxga Laptop</h3>
-      <p class="product-description">Intel I7-1255U 16gb/512gb Win11 Black</p>
-      <p class="product-price">₱38,995.00</p>
-      <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add To Cart</a>
-      <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-    </div>
-  </div>
-  <!-- You can add more New Arrival cards here -->
+  <?php
+  // New Arrivals Section
+  require_once '../admin/admin-panel/database/config.php';
+  try {
+      $stmt = $pdo->prepare("CALL sp_get_latest_products(?)");
+      $stmt->execute([4]); // Show 4 latest products
+      
+      while ($row = $stmt->fetch()) {
+          echo '<div class="product-card">';
+          if (!empty($row['image'])) {
+              echo '<img src="../admin/admin-panel/' . htmlspecialchars($row['image']) . '" alt="' . htmlspecialchars($row['name']) . '">';
+          } else {
+              echo '<div class="text-center py-5 bg-light">
+                      <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
+                    </div>';
+          }
+          echo '<div class="product-info">
+                  <h3 class="product-title">' . htmlspecialchars($row['name']) . '</h3>
+                  <p class="product-description">' . htmlspecialchars($row['description'] ?? 'No description available') . '</p>
+                  <p class="product-price">₱' . number_format($row['price'], 2) . '</p>
+                  <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add to Cart</a>
+                  <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
+                </div>';
+          echo '</div>';
+      }
+      $stmt->closeCursor();
+  } catch (PDOException $e) {
+      echo '<div class="alert alert-danger">Error loading new arrivals: ' . htmlspecialchars($e->getMessage()) . '</div>';
+  }
+    ?>
+</div>
 </div>
 
 <!-- Top Sellers Section -->
 <h2 style="margin: 20px; font-size: 24px;" class="text-center">TOP SELLERS</h2>
 <div class="product-container">
-  <div class="product-card">
-    <img src="../assets/ak400.png" alt="Product Image">
-    <div class="product-info">
-      <h3 class="product-title">AK400 Digital CPU Cooler</h3>
-      <p class="product-description">PWM 120mm Fan 1850RPM 220W TDP, Suitable for Intel LGA1700/1200/1151/1150/1155 AMD AM5/AM4</p>
-      <p class="product-price">₱1,699.00</p>
-      <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add To Cart</a>
-      <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-    </div>
-  </div>
-  <div class="product-card">
-    <img src="../assets/ryzen7.png" alt="Product Image">
-    <div class="product-info">
-      <h3 class="product-title">Ryzen 7 5700x</h3>
-      <p class="product-description">8 Cores 16 Threads</p>
-      <p class="product-price">₱8,500.00</p>
-      <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add To Cart</a>
-      <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-    </div>
-  </div>
-  <div class="product-card">
-    <img src="../assets/rx6600.png" alt="Product Image">
-    <div class="product-info">
-      <h3 class="product-title">Gigabyte RX 6600 </h3>
-      <p class="product-description">8GB GDDR6 128-bit Graphics</p>
-      <p class="product-price">₱13,000.00</p>
-      <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add To Cart</a>
-      <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-    </div>
-  </div>
-  <div class="product-card">
-    <img src="../assets/lexarNVME.png" alt="Product Image">
-    <div class="product-info">
-      <h3 class="product-title">LEXAR NVME SSD 1TB</h3>
-      <p class="product-description">NM710 1TB PCIe Gen4x4 NVMe M.2 SSD</p>
-      <p class="product-price">₱3,100.00</p>
-      <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add To Cart</a>
-      <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-    </div>
-  </div>
-  <!-- Add more Top Seller cards here -->
+  <H1> To be koan I miss you</H1>
 </div>
 
 <div class="modal fade" id="signInModal" tabindex="-1">
