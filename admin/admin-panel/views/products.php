@@ -1,822 +1,762 @@
 <?php
 session_start();
-require_once '../database/config.php';
-
-// For edit modal
-$currentBrandId = isset($_GET['brand_id']) ? $_GET['brand_id'] : null;
-$currentCategoryId = isset($_GET['category_id']) ? $_GET['category_id'] : null;
+require '../database/config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../css/style-sidebar.css">
     <link rel="stylesheet" href="../css/style-alert.css">
     <title>Products</title>
-
 </head>
 <body>
 <!-- Sidebar -->
 <div class="sidebar bg-success text-white" id="sidebar">
-  <div class="sidebar-header p-3 border-bottom border-light-subtle">
-    <h5><i class="bi bi-gear-fill me-2"></i>Admin Panel</h5>
-  </div>
-  <ul class="nav flex-column">
-    <li class="nav-item">
-      <a class="nav-link text-white bg-success-emphasis" href="../views/index.php" style="transition: all 0.3s ease;">
-        <i class="bi bi-house-door-fill me-2"></i>Home
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-white" href="../views/products.php" style="font-weight: 700; background-color:rgb(26, 175, 106);">
-        <i class="bi bi-box-seam-fill me-2"></i>Products
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-white" href="../views/orders.php" style="transition: all 0.3s ease;">
-        <i class="bi bi-cart-fill me-2"></i>Orders
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-white" href="../views/pre-built-orders.php" style="transition: all 0.3s ease;">
-        <i class="bi bi-pc-display me-2"></i>Pre-Built Orders
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-white dropdown-toggle" href="#logsSubmenu" data-bs-toggle="collapse" style="transition: all 0.3s ease;">
-        <i class="bi bi-journal-text me-2"></i>Logs
-      </a>
-      <ul class="collapse nav flex-column ms-3" id="logsSubmenu">
+    <div class="sidebar-header p-3 border-bottom border-light-subtle">
+        <h5><i class="bi bi-gear-fill me-2"></i>Admin Panel</h5>
+    </div>
+    <ul class="nav flex-column">
         <li class="nav-item">
-          <a class="nav-link text-white" href="#" style="transition: all 0.3s ease;">
-            <i class="bi bi-person-fill-lock me-2"></i>Login Logs
-          </a>
+            <a class="nav-link text-white bg-success-emphasis" href="../views/index.php" style="transition: all 0.3s ease;">
+                <i class="bi bi-house-door-fill me-2"></i>Home
+            </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white" href="transaction.php" style="transition: all 0.3s ease;">
-            <i class="bi bi-receipt me-2"></i>Transaction Logs
-          </a>
+            <a class="nav-link text-white" href="../views/products.php" style="font-weight: 700; background-color:rgb(26, 175, 106);">
+                <i class="bi bi-box-seam-fill me-2"></i>Products
+            </a>
         </li>
-      </ul>
-    </li>
-    <li class="nav-item mt-auto">
-      <button class="btn btn-outline-light m-3" data-bs-toggle="modal" data-bs-target="#signOutModal">
-            <i class="bi bi-box-arrow-right me-2"></i>Sign out
-        </button>
-    </li>
-  </ul>
+        <li class="nav-item">
+            <a class="nav-link text-white" href="../views/orders.php" style="transition: all 0.3s ease;">
+                <i class="bi bi-cart-fill me-2"></i>Orders
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white" href="../views/pre-built-orders.php" style="transition: all 0.3s ease;">
+                <i class="bi bi-pc-display me-2"></i>Pre-Built Orders
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white dropdown-toggle" href="#logsSubmenu" data-bs-toggle="collapse" style="transition: all 0.3s ease;">
+                <i class="bi bi-journal-text me-2"></i>Logs
+            </a>
+            <ul class="collapse nav flex-column ms-3" id="logsSubmenu">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" style="transition: all 0.3s ease;">
+                        <i class="bi bi-person-fill-lock me-2"></i>Login Logs
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="transaction.php" style="transition: all 0.3s ease;">
+                        <i class="bi bi-receipt me-2"></i>Transaction Logs
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item mt-auto">
+            <button class="btn btn-outline-light m-3" data-bs-toggle="modal" data-bs-target="#signOutModal">
+                <i class="bi bi-box-arrow-right me-2"></i>Sign out
+            </button>
+        </li>
+    </ul>
 </div>
 
-<!-- Main Content -->
+<!-- Main Content Container -->
 <div class="container-fluid" style="margin-left: 250px; padding: 20px; max-width: calc(100% - 250px);">
-    <!-- Alert Container -->
-    <div id="alertContainer">
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                <?php 
-                echo $_SESSION['success'];
-                unset($_SESSION['success']);
-                ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
-
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-circle-fill me-2"></i>
-                <?php 
-                echo $_SESSION['error'];
-                unset($_SESSION['error']);
-                ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
+    <h1 class="text-center">Product List</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <form class="d-flex" style="max-width: 350px;">
+            <input class="form-control me-2" type="search" placeholder="Search products..." aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+        <div>
+            <button class="btn btn-secondary me-2" data-bs-toggle="modal" data-bs-target="#manageCategoriesBrandsModal">
+                <i class="bi bi-tags-fill me-1"></i> Manage Categories & Brands
+            </button>
+            <button class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i> Add Product
+            </button>
+        </div>
     </div>
-    <div class="row">
-        <div class="col-12">
-            <h2 class="text-center mb-4">Product List</h2>
-            
-            <!-- Search and Filter Row -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-2">
-                    <input type="search" class="form-control border-success" placeholder="Search products...">
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select border-success">
-                        <option value="">Filter by Brand</option>
+
+    <!-- Alert Message -->
+    <?php if (isset($_SESSION['alert'])): ?>
+        <div class="alert alert-<?= $_SESSION['alert']['type'] ?> alert-dismissible fade show" role="alert">
+            <?= $_SESSION['alert']['message'] ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <?php unset($_SESSION['alert']); ?>
+    <?php endif; ?>
+    
+    <div class="card border-success shadow-sm">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Product List</h5>
+            <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                <i class="bi bi-plus-circle me-1"></i>Add Product
+            </button>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="py-3 ps-4">ID</th>
+                            <th class="py-3">Name</th>
+                            <th class="py-3">Brand</th>
+                            <th class="py-3">Category</th>
+                            <th class="py-3">Stocks</th>
+                            <th class="py-3">Price</th>
+                            <th class="py-3 text-center">Status</th>
+                            <th class="py-3 text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         <?php
-                        $brandStmt = $pdo->query("SELECT * FROM brands WHERE status = 1 ORDER BY brand_name");
-                        while ($brand = $brandStmt->fetch()) {
-                            echo "<option value='" . htmlspecialchars($brand['brand_id']) . "'>" . htmlspecialchars($brand['brand_name']) . "</option>";
+                        try {
+                            $stmt = $pdo->query("CALL sp_get_products()");
+                            while ($row = $stmt->fetch()) {
+                                $stockStatus = is_null($row['stocks']) ? 
+                                    '<span class="badge bg-success">Unlimited</span>' : 
+                                    intval($row['stocks']);
+                                
+                                $status = $row['status'] ? 
+                                    '<span class="badge bg-success">Active</span>' : 
+                                    '<span class="badge bg-danger">Inactive</span>';
+
+                                // Replace the problematic table row code with this fixed version
+                                echo "<tr>
+                                    <td class='ps-4 text-success'>" . htmlspecialchars($row['id']) . "</td>
+                                    <td>" . htmlspecialchars($row['name']) . "</td>
+                                    <td>" . htmlspecialchars($row['brand_name']) . "</td>
+                                    <td>" . htmlspecialchars($row['category_name']) . "</td>
+                                    <td>{$stockStatus}</td>
+                                    <td>₱" . number_format($row['price'], 2) . "</td>
+                                    <td class='text-center'>{$status}</td>
+                                    <td class='text-end pe-4'>
+                                        <button class='btn btn-sm btn-outline-success me-1' 
+                                                onclick='editProduct(" . json_encode($row) . ")' 
+                                                title='Edit'>
+                                            <i class='bi bi-pencil-square'></i>
+                                        </button>
+                                        <button class='btn btn-sm btn-outline-danger' 
+                                                onclick='showDeleteModal(" . $row['id'] . ", \"" . htmlspecialchars($row['name']) . "\")' 
+                                                title='Delete'>
+                                            <i class='bi bi-trash'></i>
+                                        </button>
+                                    </td>
+                                </tr>";
+                            }
+                            $stmt->closeCursor();
+                        } catch (PDOException $e) {
+                            echo '<tr><td colspan="8" class="text-center text-danger">Error loading products: ' . 
+                                htmlspecialchars($e->getMessage()) . '</td></tr>';
                         }
                         ?>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#manageCategoriesModal">
-                        <i class="bi bi-gear-fill me-2"></i>Manage Categories & Brands
-                    </button>
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#productModal">
-                        <i class="bi bi-plus-circle me-2"></i>Add Product
-                    </button>
-                </div>
+                    </tbody>
+                </table>
             </div>
+        </div>
+    </div>
 
-            <!-- Products Table -->
-            <div class="card border-success shadow-sm mb-4">
-                <div class="card-header bg-success text-white py-3">
-                    <h5 class="mb-0">Products List</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead>
-                                <tr class="bg-light">
-                                    <th class="py-3 px-4" style="width: 5%">ID</th>
-                                    <th class="py-3 px-4" style="width: 30%">Product Name</th>
-                                    <th class="py-3 px-4" style="width: 15%">Brand</th>
-                                    <th class="py-3 px-4" style="width: 15%">Stocks</th>
-                                    <th class="py-3 px-4" style="width: 15%">Price</th>
-                                    <th class="py-3 px-4 text-end" style="width: 20%">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                $stmt = $pdo->query("
-                                    SELECT p.*, b.brand_name, c.category_name 
-                                    FROM products p
-                                    LEFT JOIN brands b ON p.brand_id = b.brand_id
-                                    LEFT JOIN categories c ON p.category_id = c.category_id
-                                    ORDER BY p.product_id DESC
-                                ");
-                                while ($row = $stmt->fetch()) {
-                                    echo "<tr>
-                                        <td class='px-4'>
-                                            <span class='fw-bold text-success'>#{$row['product_id']}</span>
-                                        </td>
-                                        <td class='px-4'>
-                                            <div class='d-flex align-items-center'>
-                                                <div class='bg-success-subtle rounded-3 p-2 me-3'>
-                                                    " . ($row['image_path'] ? 
-                                                    "<img src='../{$row['image_path']}' alt='{$row['product_name']}' style='width: 40px; height: 40px; object-fit: contain;'>" :
-                                                    "<i class='bi bi-box-seam text-success fs-4'></i>") . "
-                                                </div>
-                                                <div>
-                                                    <h6 class='mb-0'>{$row['product_name']}</h6>
-                                                    <small class='text-muted'>{$row['category_name']}</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class='px-4'>
-                                            <span class='badge bg-success-subtle text-success px-3 py-2'>{$row['brand_name']}</span>
-                                        </td>
-                                        <td class='px-4'>
-                                            <div class='d-flex align-items-center'>
-                                                <div class='me-3'>{$row['stocks']}</div>
-                                            </div>
-                                        </td>
-                                        <td class='px-4'>
-                                            <span class='fw-semibold'>₱" . number_format($row['price'], 2) . "</span>
-                                        </td>
-                                        <td class='px-4 text-end'>
-                                            <button class='btn btn-outline-success btn-sm me-1' onclick='editProduct({$row['product_id']})'>
-                                                <i class='bi bi-pencil-fill'></i>
-                                            </button>
-                                            <button class='btn btn-outline-danger btn-sm' onclick='deleteProduct({$row['product_id']})'>
-                                                <i class='bi bi-trash-fill'></i>
-                                            </button>
-                                        </td>
-                                    </tr>";
-                                }
-                                ?>
-                            </tbody>
-                        </table>
+    <!-- Featured Products Section -->
+    <h2 class="mt-5 mb-4 text-center">Featured Products</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <?php
+    try {
+        $stmt = $pdo->query("CALL sp_get_products()");
+        while ($row = $stmt->fetch()) {
+            echo '<div class="col">';
+            echo '  <div class="card h-100 shadow-sm">';
+            if (!empty($row['image'])) {
+                // Fix the image path by removing the additional 'uploads/products' since it's already in the path
+                echo '<img src="../' . htmlspecialchars($row['image']) . '" class="card-img-top" alt="' . htmlspecialchars($row['name']) . '" style="object-fit:cover; height:200px;">';
+            } else {
+                echo '<div class="text-center py-5 bg-light">
+                        <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
+                      </div>';
+            }
+            echo '    <div class="card-body">';
+            echo '      <h5 class="card-title">' . htmlspecialchars($row['name']) . '</h5>';
+            echo '      <p class="card-text mb-1"><strong>Brand:</strong> ' . htmlspecialchars($row['brand_name']) . '</p>';
+            echo '      <p class="card-text mb-1"><strong>Category:</strong> ' . htmlspecialchars($row['category_name']) . '</p>';
+            echo '      <p class="card-text mb-1"><strong>Stocks:</strong> ' . (is_null($row['stocks']) ? '<span class="badge bg-success">Unlimited</span>' : intval($row['stocks'])) . '</p>';
+            echo '      <p class="card-text mb-1"><strong>Price:</strong> ₱' . number_format($row['price'], 2) . '</p>';
+            echo '      <p class="card-text"><strong>Status:</strong> ' . ($row['status'] ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>') . '</p>';
+            if (!empty($row['description'])) {
+                echo '  <p class="card-text small text-muted">' . htmlspecialchars($row['description']) . '</p>';
+            }
+            echo '    </div>';
+            echo '  </div>';
+            echo '</div>';
+        }
+        $stmt->closeCursor();
+    } catch (PDOException $e) {
+        echo '<div class="col-12 text-center text-danger">Error loading featured products: ' . htmlspecialchars($e->getMessage()) . '</div>';
+    }
+    ?>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Manage Categories & Brands Modal -->
+<div class="modal fade" id="manageCategoriesBrandsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-tags-fill me-2"></i>Manage Categories & Brands
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Categories Section -->
+                    <div class="col-md-6 border-end">
+                        <h6>Categories</h6>
+                        <!-- Update the category form -->
+                        <form action="../database/Controllers/add_category.php" method="POST" class="d-flex mb-3" id="addCategoryForm">
+                            <input type="text" class="form-control me-2" placeholder="Add new category" name="category_name" required>
+                            <button type="submit" class="btn btn-success btn-sm">Add</button>
+                        </form>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    // Add this before your queries
+                                    try {
+                                        $stmt = $pdo->query("CALL sp_get_categories()");
+                                        if (!$stmt) {
+                                            throw new PDOException("Error executing query");
+                                        }
+                                        while ($row = $stmt->fetch()) {
+                                            // Update the category toggle button code
+                                            echo "<tr>
+                                                <td>{$row['category_name']}</td>
+                                                <td>" . ($row['status'] ? 
+                                                    '<span class="badge bg-success">Active</span>' : 
+                                                    '<span class="badge bg-danger">Inactive</span>') . "</td>
+                                                <td class='text-end'>
+                                                    <button type='button' class='btn btn-sm btn-outline-" . 
+                                                    ($row['status'] ? 'danger' : 'success') . " me-1' 
+                                                    onclick='window.location.href=\"../database/Controllers/toggle_category_status.php?id=" . 
+                                                    $row['category_id'] . "\"'>
+                                                        <i class='bi bi-" . ($row['status'] ? 'eye-slash' : 'eye') . "'></i>
+                                                    </button>
+                                                    <button type='button' class='btn btn-sm btn-outline-danger'>
+                                                        <i class='bi bi-trash'></i>
+                                                    </button>
+                                                </td>
+                                            </tr>";
+                                        }
+                                        $stmt->closeCursor();
+                                    } catch (PDOException $e) {
+                                        echo "Database error: " . $e->getMessage();
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Brands Section -->
+                    <div class="col-md-6">
+                        <h6>Brands</h6>
+                        <!-- Update the brand form -->
+                        <form action="../database/Controllers/add_brand.php" method="POST" class="d-flex mb-3" id="addBrandForm">
+                            <input type="text" class="form-control me-2" placeholder="Add new brand" name="brand_name" required>
+                            <button type="submit" class="btn btn-success btn-sm">Add</button>
+                        </form>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $stmt = $pdo->query("CALL sp_get_brands()");
+                                    while ($row = $stmt->fetch()) {
+                                        echo "<tr>
+                                            <td>{$row['brand_name']}</td>
+                                            <td>" . ($row['status'] ? 
+                                                '<span class="badge bg-success">Active</span>' : 
+                                                '<span class="badge bg-danger">Inactive</span>') . "</td>
+                                            <td class='text-end'>
+                                                <button type='button' class='btn btn-sm btn-outline-" . 
+                                                ($row['status'] ? 'danger' : 'success') . " me-1' 
+                                                onclick='window.location.href=\"../database/Controllers/toggle_brand_status.php?id=" . 
+                                                $row['brand_id'] . "\"'>
+                                                    <i class='bi bi-" . ($row['status'] ? 'eye-slash' : 'eye') . "'></i>
+                                                </button>
+                                                <button type='button' class='btn btn-sm btn-outline-danger'>
+                                                    <i class='bi bi-trash'></i>
+                                                </button>
+                                            </td>
+                                        </tr>";
+                                    }
+                                    $stmt->closeCursor();
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Featured Products Grid -->
-            <h2 class="mb-4">Featured Products</h2>
-            <div class="row g-4">
-                <?php
-                $stmt = $pdo->query("
-                    SELECT p.*, b.brand_name, c.category_name 
-                    FROM products p
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
-                    LEFT JOIN categories c ON p.category_id = c.category_id
-                    WHERE p.status = 1
-                    ORDER BY p.created_at DESC
-                    LIMIT 6
-                ");
-                while ($row = $stmt->fetch()) {
-                    echo "<div class='col-md-4'>
-                        <div class='card h-100 border-success'>
-                            <div class='p-3' style='height: 200px;'>
-                                " . ($row['image_path'] ? 
-                                "<img src='../{$row['image_path']}' class='card-img-top h-100' alt='{$row['product_name']}' style='object-fit: contain;'>" :
-                                "<div class='h-100 d-flex align-items-center justify-content-center bg-light rounded'>
-                                    <i class='bi bi-box-seam text-success' style='font-size: 3rem;'></i>
-                                </div>") . "
-                            </div>
-                            <div class='card-body'>
-                                <h5 class='card-title text-success'>{$row['product_name']}</h5>
-                                <p class='card-text text-muted'>{$row['brand_name']} {$row['category_name']}</p>
-                                <div class='d-flex justify-content-between align-items-center'>
-                                    <span class='h5 mb-0'>₱" . number_format($row['price'], 2) . "</span>
-                                    <span class='badge " . ($row['stocks'] > 0 ? 'bg-success' : 'bg-danger') . "'>" . 
-                                    ($row['stocks'] > 0 ? 'In Stock' : 'Out of Stock') . "</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>";
-                }
-                ?>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modals starts here -->
-<div class="modal fade" id="productModal" tabindex="-1">
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <form method="POST" action="../database/Controllers/add-product.php" enctype="multipart/form-data">
-            <div class="modal-content">
+        <div class="modal-content">
+            <form action="../database/Controllers/add_product.php" method="POST" enctype="multipart/form-data">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Add New Product</h5>
+                    <h5 class="modal-title">
+                        <i class="bi bi-plus-circle me-2"></i>Add Product
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col-md-4 text-center">
-                            <div class="position-relative mb-3">
-                                <div class="bg-light rounded p-3 mb-3" style="min-height: 200px;">
-                                    <img id="productImagePreview" src="../images/logo.png" alt="Product Preview" 
-                                         class="img-fluid rounded" style="max-height: 200px; object-fit: contain;">
-                                </div>
-                                <div class="d-grid">
-                                    <label class="btn btn-outline-success">
-                                        <i class="bi bi-upload me-2"></i>Upload Image
-                                        <input type="file" name="product_image" class="d-none" 
-                                               accept="image/*" onchange="previewImage(event)">
-                                    </label>
+                            <div id="productImagePreview" class="mb-2" style="height:200px;">
+                                <div class="h-100 d-flex align-items-center justify-content-center bg-light rounded">
+                                    <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
                                 </div>
                             </div>
-                            <div class="form-check form-switch d-flex justify-content-center align-items-center mb-3">
-                                <input class="form-check-input me-2" type="checkbox" id="productVisibility" checked>
-                                <label class="form-check-label" for="productVisibility">
-                                    Product Visibility
-                                </label>
-                            </div>
-                            <div class="badge bg-success-subtle text-success p-2">
-                                <i class="bi bi-box-seam me-1"></i>
-                                New Product
-                            </div>
+                            <input type="file" class="form-control" name="product_image" accept="image/*" onchange="previewProductImage(event)">
+                            <small class="text-muted">Image is optional</small>
                         </div>
                         <div class="col-md-8">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label class="form-label">Product Name</label>
-                                    <input type="text" name="product_name" class="form-control border-success" 
-                                           placeholder="Enter product name" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Brand</label>
-                                    <select name="brand" class="form-select border-success" required>
-                                        <option value="">Select brand</option>
-                                        <?php
-                                        $brandStmt = $pdo->query("SELECT * FROM brands WHERE status = 1 ORDER BY brand_name");
-                                        while ($brand = $brandStmt->fetch()) {
-                                            echo "<option value='" . htmlspecialchars($brand['brand_id']) . "'>" . htmlspecialchars($brand['brand_name']) . "</option>";
+                            <div class="mb-3">
+                                <label for="productName" class="form-label">Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="productName" name="product_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productBrand" class="form-label">Brand <span class="text-danger">*</span></label>
+                                <select class="form-select" id="productBrand" name="brand_id" required>
+                                    <option value="" disabled selected>Select brand</option>
+                                    <?php
+                                    try {
+                                        $stmt = $pdo->query("CALL sp_get_brands()");
+                                        while ($row = $stmt->fetch()) {
+                                            if ($row['status']) {
+                                                echo "<option value=\"{$row['brand_id']}\">" . htmlspecialchars($row['brand_name']) . "</option>";
+                                            }
                                         }
-                                        ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Category</label>
-                                    <select name="category" class="form-select border-success" required>
-                                        <option value="">Select category</option>
-                                        <?php
-                                        $categoryStmt = $pdo->query("SELECT * FROM categories WHERE status = 1 ORDER BY category_name");
-                                        while ($category = $categoryStmt->fetch()) {
-                                            echo "<option value='" . htmlspecialchars($category['category_id']) . "'>" . htmlspecialchars($category['category_name']) . "</option>";
+                                        $stmt->closeCursor();
+                                    } catch (PDOException $e) {
+                                        echo "<option disabled>Error loading brands</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productCategory" class="form-label">Category <span class="text-danger">*</span></label>
+                                <select class="form-select" id="productCategory" name="category_id" required>
+                                    <option value="" disabled selected>Select category</option>
+                                    <?php
+                                    try {
+                                        $stmt = $pdo->query("CALL sp_get_categories()");
+                                        while ($row = $stmt->fetch()) {
+                                            if ($row['status']) {
+                                                echo "<option value=\"{$row['category_id']}\">" . htmlspecialchars($row['category_name']) . "</option>";
+                                            }
                                         }
-                                        ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Price (₱)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text border-success bg-success text-white">₱</span>
-                                        <input type="number" name="price" class="form-control border-success" 
-                                               step="0.01" placeholder="0.00" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Initial Stock</label>
-                                    <div class="input-group">
-                                        <input type="number" name="stocks" class="form-control border-success" 
-                                               placeholder="0" required>
-                                        <span class="input-group-text border-success">units</span>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label">Product Description</label>
-                                    <textarea name="description" class="form-control border-success" 
-                                              rows="3" placeholder="Enter product description"></textarea>
-                                </div>
+                                        $stmt->closeCursor();
+                                    } catch (PDOException $e) {
+                                        echo "<option disabled>Error loading categories</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productStocks" class="form-label">Stocks</label>
+                                <input type="number" class="form-control" id="productStocks" name="stocks" min="0" placeholder="Leave blank if unlimited">
+                            </div>
+                            <div class="mb-3">
+                                <label for="productPrice" class="form-label">Price <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="productPrice" name="price" min="0" step="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="productDescription" name="description" rows="3" placeholder="Optional"></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="submit_product" class="btn btn-success">
-                        <i class="bi bi-plus-circle me-1"></i>Add Product
-                    </button>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Add Product</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
-                <div class="div">
-                <?php if (isset($_SESSION['success'])): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <?php 
-                        echo $_SESSION['success'];
-                        unset($_SESSION['success']);
-                        ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                <?php endif; ?>
-
-                <?php if (isset($_SESSION['error'])): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <?php 
-                        echo $_SESSION['error'];
-                        unset($_SESSION['error']);
-                        ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                <?php endif; ?>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
 <!-- Edit Product Modal -->
-<div class="modal fade" id="editproductModal" tabindex="-1">
+<div class="modal fade" id="editProductModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <form id="editProductForm" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="product_id">
-            <div class="modal-content">
+        <div class="modal-content">
+            <form action="../database/Controllers/edit_product.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="product_id" id="editProductId">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Edit Product</h5>
+                    <h5 class="modal-title">
+                        <i class="bi bi-pencil-square me-2"></i>Edit Product
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col-md-4 text-center">
-                            <div class="position-relative">
-                                <img src="../images/logo.png" alt="Product Image" class="img-fluid rounded mb-3" style="max-height: 200px; object-fit: contain;">
-                                <div class="mt-2">
-                                    <label class="btn btn-outline-success btn-sm">
-                                        <i class="bi bi-upload me-1"></i>Change Image
-                                        <input type="file" name="product_image" class="d-none" accept="image/*">
-                                    </label>
+                            <div id="editProductImagePreview" class="mb-2" style="height:200px;">
+                                <div class="h-100 d-flex align-items-center justify-content-center bg-light rounded">
+                                    <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
                                 </div>
                             </div>
-                            <div class="mt-3">
-                                <span class="badge bg-success mb-2">Current Status: Active</span>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="status" id="productStatus" checked>
-                                    <label class="form-check-label" for="productStatus">Product Visibility</label>
-                                </div>
-                            </div>
+                            <input type="file" class="form-control" name="product_image" accept="image/*" onchange="previewEditImage(event)">
+                            <small class="text-muted">Leave empty to keep current image</small>
                         </div>
                         <div class="col-md-8">
                             <div class="mb-3">
-                                <label class="form-label">Product Name</label>
-                                <input type="text" name="product_name" class="form-control border-success" required>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Brand</label>
-                                    <select name="brand" class="form-select border-success" required>
-                                        <?php
-                                        $brandStmt = $pdo->query("SELECT * FROM brands WHERE status = 1 ORDER BY brand_name");
-                                        while ($brand = $brandStmt->fetch()) {
-                                            echo "<option value='" . htmlspecialchars($brand['brand_id']) . "'>" . htmlspecialchars($brand['brand_name']) . "</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Category</label>
-                                    <select name="category" class="form-select border-success" required>
-                                        <?php
-                                        $categoryStmt = $pdo->query("SELECT * FROM categories WHERE status = 1 ORDER BY category_name");
-                                        while ($category = $categoryStmt->fetch()) {
-                                            echo "<option value='" . htmlspecialchars($category['category_id']) . "'>" . htmlspecialchars($category['category_name']) . "</option>";
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Price (₱)</label>
-                                    <input type="number" step="1" name="price" class="form-control border-success" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Stock Quantity</label>
-                                    <input type="number" name="stocks" class="form-control border-success" required>
-                                </div>
+                                <label for="editProductName" class="form-label">Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editProductName" name="product_name" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Product Description</label>
-                                <textarea name="description" class="form-control border-success" rows="3"></textarea>
+                                <label for="editProductBrand" class="form-label">Brand <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editProductBrand" name="brand_id" required>
+                                    <option value="" disabled selected>Select brand</option>
+                                    <?php
+                                    try {
+                                        $stmt = $pdo->query("CALL sp_get_brands()");
+                                        while ($row = $stmt->fetch()) {
+                                            if ($row['status']) {
+                                                echo "<option value=\"{$row['brand_id']}\">" . htmlspecialchars($row['brand_name']) . "</option>";
+                                            }
+                                        }
+                                        $stmt->closeCursor();
+                                    } catch (PDOException $e) {
+                                        echo "<option disabled>Error loading brands</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editProductCategory" class="form-label">Category <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editProductCategory" name="category_id" required>
+                                    <option value="" disabled selected>Select category</option>
+                                    <?php
+                                    try {
+                                        $stmt = $pdo->query("CALL sp_get_categories()");
+                                        while ($row = $stmt->fetch()) {
+                                            if ($row['status']) {
+                                                echo "<option value=\"{$row['category_id']}\">" . htmlspecialchars($row['category_name']) . "</option>";
+                                            }
+                                        }
+                                        $stmt->closeCursor();
+                                    } catch (PDOException $e) {
+                                        echo "<option disabled>Error loading categories</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editProductStocks" class="form-label">Stocks</label>
+                                <input type="number" class="form-control" id="editProductStocks" name="stocks" min="0" placeholder="Leave blank if unlimited">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editProductPrice" class="form-label">Price <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="editProductPrice" name="price" min="0" step="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editProductDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="editProductDescription" name="description" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="editProductStatus" name="status">
+                                    <label class="form-check-label" for="editProductStatus">Active</label>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-check-lg me-1"></i>Save Changes
-                    </button>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
-<!-- Delete Product Modal -->
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static">
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteProductModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">Delete Product</h5>
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Delete Product
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="text-center mb-4">
-                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                    <img src="../images/logo.png" alt="Product Image" class="rounded me-3" style="height: 60px; width: 60px; object-fit: contain;">
-                    <div>
-                        <h5 class="mb-1">Ryzen 69</h5>
-                        <p class="text-muted mb-0">AMD Processor</p>
-                    </div>
-                </div>
-                <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-circle me-2"></i>
-                    This action cannot be undone. The product will be permanently removed from the system.
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Type "DELETE" to confirm</label>
-                    <input type="text" class="form-control" id="deleteConfirmation" placeholder="DELETE">
-                </div>
+                <p>Are you sure you want to delete "<span id="deleteProductName" class="fw-bold"></span>"?</p>
+                <p class="text-muted mb-0">This action cannot be undone.</p>
             </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDelete" disabled>
-                    <i class="bi bi-trash-fill me-1"></i>Delete Product
-                </button>
+            <div class="modal-footer">
+                <form action="../database/Controllers/delete_product.php" method="POST">
+                    <input type="hidden" id="deleteProductId" name="product_id">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete Product</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Manage Categories & Brands Modal -->
-<div class="modal fade" id="manageCategoriesModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">Manage Categories & Brands</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="brands-tab" data-bs-toggle="tab" data-bs-target="#brands" type="button">Brands</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button">Categories</button>
-                    </li>
-                </ul>
-                
-                <div class="tab-content" id="myTabContent">
-                    <!-- Brands Tab -->
-                    <div class="tab-pane fade show active" id="brands">
-                        <form method="POST" action="../database/manage-categories/add_brand.php" class="mb-4">
-                            <div class="input-group">
-                                <input type="text" name="brand_name" class="form-control border-success" placeholder="Enter brand name" required>
-                                <button type="submit" class="btn btn-success">
-                                    <i class="bi bi-plus-lg me-1"></i>Add Brand
-                                </button>
-                            </div>
-                        </form>
-                        
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th>Brand Name</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    require_once '../database/config.php';
-                                    $stmt = $pdo->query("SELECT * FROM brands ORDER BY brand_name");
-                                    while ($row = $stmt->fetch()) {
-                                        echo "<tr>
-                                            <td>{$row['brand_name']}</td>
-                                            <td>" . ($row['status'] ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>') . "</td>
-                                            <td class='text-end'>
-                                                <button class='btn btn-sm btn-outline-danger' onclick='toggleBrandStatus({$row['brand_id']})'>
-                                                    " . ($row['status'] ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>') . "
-                                                </button>
-                                            </td>
-                                        </tr>";
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <!-- Categories Tab -->
-                    <div class="tab-pane fade" id="categories">
-                        <form method="POST" action="../database/manage-categories/add_category.php" class="mb-4">
-                            <div class="input-group">
-                                <input type="text" name="category_name" class="form-control border-success" placeholder="Enter category name" required>
-                                <button type="submit" class="btn btn-success">
-                                    <i class="bi bi-plus-lg me-1"></i>Add Category
-                                </button>
-                            </div>
-                        </form>
-                        
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th>Category Name</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    $stmt = $pdo->query("SELECT * FROM categories ORDER BY category_name");
-                                    while ($row = $stmt->fetch()) {
-                                        echo "<tr>
-                                            <td>{$row['category_name']}</td>
-                                            <td>" . ($row['status'] ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>') . "</td>
-                                            <td class='text-end'>
-                                                <button class='btn btn-sm btn-outline-danger' onclick='toggleCategoryStatus({$row['category_id']})'>
-                                                    " . ($row['status'] ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>') . "
-                                                </button>
-                                            </td>
-                                        </tr>";
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<!-- Sign Out Confirmation Modal -->
-<div class="modal fade" id="signOutModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">Sign Out Confirmation</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center py-4">
-                <div class="mb-4">
-                    <i class="bi bi-question-circle text-success" style="font-size: 3rem;"></i>
-                </div>
-                <h5 class="mb-3">Are you sure you want to sign out?</h5>
-                <p class="text-muted mb-0">You will be redirected to the home page.</p>
-            </div>
-            <div class="modal-footer border-top-0">
-                <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg me-2"></i>Cancel
-                </button>
-                <a href="../../../guest/sample.php" class="btn btn-danger">
-                    <i class="bi bi-check-lg me-2"></i>Yes, Sign Out
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 
 <script>
-// Add this JavaScript for delete confirmation
-document.getElementById('deleteConfirmation').addEventListener('input', function() {
-    document.getElementById('confirmDelete').disabled = this.value !== 'DELETE';
+// Update the previewProductImage function
+function previewProductImage(event) {
+    const preview = document.getElementById('productImagePreview');
+    const [file] = event.target.files;
+    
+    if (file) {
+        preview.innerHTML = `<img src="${URL.createObjectURL(file)}" class="img-fluid rounded" style="max-height:200px;" alt="Product preview">`;
+    } else {
+        preview.innerHTML = `
+            <div class="h-100 d-flex align-items-center justify-content-center bg-light rounded">
+                <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
+            </div>`;
+    }
+}
+
+// Attach modal trigger to Add Product button
+document.addEventListener('DOMContentLoaded', function() {
+    const addProductBtn = document.querySelector('button.btn-success i.bi-plus-circle')?.parentElement;
+    if (addProductBtn) {
+        addProductBtn.setAttribute('data-bs-toggle', 'modal');
+        addProductBtn.setAttribute('data-bs-target', '#addProductModal');
+    }
 });
 
-function previewImage(event) {
-    const reader = new FileReader();
-    reader.onload = function() {
-        const preview = document.getElementById('productImagePreview');
-        preview.src = reader.result;
+// Preview function for edited product image
+function previewEditImage(event) {
+    const preview = document.getElementById('editProductImagePreview');
+    const [file] = event.target.files;
+    
+    if (file) {
+        preview.innerHTML = `<img src="${URL.createObjectURL(file)}" class="img-fluid rounded" style="max-height:200px;" alt="Product preview">`;
+    } else {
+        preview.innerHTML = `
+            <div class="h-100 d-flex align-items-center justify-content-center bg-light rounded">
+                <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
+            </div>`;
     }
-    reader.readAsDataURL(event.target.files[0]);
 }
 
-function addSpecField() {
-    const container = document.getElementById('specificationFields');
-    const newField = document.createElement('div');
-    newField.className = 'input-group mb-2';
-    newField.innerHTML = `
-        <input type="text" name="spec_key[]" class="form-control border-success" placeholder="Specification name">
-        <input type="text" name="spec_value[]" class="form-control border-success" placeholder="Value">
-        <button type="button" class="btn btn-outline-danger" onclick="removeSpec(this)">
-            <i class="bi bi-dash-lg"></i>
-        </button>
-    `;
-    container.appendChild(newField);
-}
-
-function removeSpec(button) {
-    button.closest('.input-group').remove();
-}
-
-function showAlert(message, type = 'success') {
-    const alertContainer = document.getElementById('alertContainer');
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type} alert-dismissible fade show`;
-    alert.innerHTML = `
-        <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-circle-fill'} me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    alertContainer.appendChild(alert);
-
-    // Auto dismiss after 5 seconds
-    setTimeout(() => {
-        alert.classList.remove('show');
-        setTimeout(() => alert.remove(), 150);
-    }, 5000);
-}
-
-function toggleBrandStatus(brandId) {
-    fetch('../database/manage-categories/toggle_brand_status.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `brand_id=${brandId}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('Brand status updated successfully');
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            showAlert(data.error || 'Error updating brand status', 'danger');
-        }
+// Populate edit product modal with existing data
+document.addEventListener('DOMContentLoaded', function() {
+    const editProductModal = document.getElementById('editProductModal');
+    
+    editProductModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget; // Button that triggered the modal
+        const productId = button.getAttribute('data-id'); // Extract info from data-* attributes
+        
+        // Fetch product details using AJAX
+        fetch(`../database/Controllers/get_product.php?id=${productId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const product = data.product;
+                    
+                    // Populate fields
+                    document.getElementById('editProductId').value = product.id;
+                    document.getElementById('editProductName').value = product.name;
+                    document.getElementById('editProductStocks').value = product.stocks || '';
+                    document.getElementById('editProductPrice').value = product.price;
+                    document.getElementById('editProductDescription').value = product.description || '';
+                    document.getElementById('editProductStatus').checked = product.status;
+                    
+                    // Update brand and category selects
+                    updateBrandAndCategorySelects(product.brand_id, product.category_id);
+                    
+                    // Preview existing image
+                    if (product.image) {
+                        document.getElementById('editProductImagePreview').innerHTML = `<img src="${product.image}" class="img-fluid rounded" style="max-height:200px;" alt="Product image">`;
+                    } else {
+                        document.getElementById('editProductImagePreview').innerHTML = `
+                            <div class="h-100 d-flex align-items-center justify-content-center bg-light rounded">
+                                <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
+                            </div>`;
+                    }
+                } else {
+                    // Handle error (e.g., product not found)
+                    console.error('Product not found:', data.message);
+                }
+            })
+            .catch(error => console.error('Error fetching product details:', error));
     });
-}
+});
 
-function toggleCategoryStatus(categoryId) {
-    fetch('../database/manage-categories/toggle_category_status.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `category_id=${categoryId}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('Category status updated successfully');
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            showAlert(data.error || 'Error updating category status', 'danger');
-        }
-    });
-}
-
-// Replace or update these functions in your script section
-function editProduct(productId) {
-    fetch(`../database/Controllers/get_product.php?id=${productId}`)
-        .then(response => response.json())
-        .then(product => {
-            const form = document.getElementById('editProductForm');
-            form.querySelector('input[name="product_id"]').value = product.product_id;
-            form.querySelector('input[name="product_name"]').value = product.product_name;
-            form.querySelector('select[name="brand"]').value = product.brand_id;
-            form.querySelector('select[name="category"]').value = product.category_id;
-            form.querySelector('input[name="price"]').value = product.price;
-            form.querySelector('input[name="stocks"]').value = product.stocks;
-            form.querySelector('textarea[name="description"]').value = product.description || '';
-            
-            if (product.image_path) {
-                form.querySelector('img').src = '../' + product.image_path;
-            }
-            
-            new bootstrap.Modal(document.getElementById('editproductModal')).show();
-        })
-        .catch(error => {
-            showAlert('Error loading product details', 'danger');
-        });
-}
-
-function deleteProduct(productId) {
-    fetch(`../database/Controllers/get_product.php?id=${productId}`)
-        .then(response => response.json())
-        .then(product => {
-            const modal = document.getElementById('staticBackdrop');
-            modal.querySelector('.modal-body h5').textContent = product.product_name;
-            modal.querySelector('.modal-body p').textContent = `${product.brand_name} ${product.category_name}`;
-            
-            if (product.image_path) {
-                modal.querySelector('.modal-body img').src = '../' + product.image_path;
-            }
-            
-            document.getElementById('confirmDelete').onclick = () => confirmDelete(productId);
-            
-            new bootstrap.Modal(modal).show();
-        })
-        .catch(error => {
-            showAlert('Error loading product details', 'danger');
-        });
-}
-
-function confirmDelete(productId) {
-    if (document.getElementById('deleteConfirmation').value === 'DELETE') {
-        fetch('../database/Controllers/delete_product.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `product_id=${productId}`
-        })
+// Function to update brand and category selects in the edit product modal
+function updateBrandAndCategorySelects(selectedBrandId, selectedCategoryId) {
+    const editProductBrand = document.getElementById('editProductBrand');
+    const editProductCategory = document.getElementById('editProductCategory');
+    
+    // Clear existing options
+    editProductBrand.innerHTML = '<option value="" disabled selected>Select brand</option>';
+    editProductCategory.innerHTML = '<option value="" disabled selected>Select category</option>';
+    
+    // Fetch and populate brands
+    fetch(`../database/Controllers/get_brands.php`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('staticBackdrop'));
-                modal.hide();
-                showAlert('Product deleted successfully');
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                showAlert(data.error || 'Error deleting product', 'danger');
+                data.brands.forEach(brand => {
+                    const option = document.createElement('option');
+                    option.value = brand.brand_id;
+                    option.textContent = brand.brand_name;
+                    if (brand.brand_id == selectedBrandId) {
+                        option.selected = true;
+                    }
+                    editProductBrand.appendChild(option);
+                });
             }
         })
-        .catch(error => {
-            showAlert('Error deleting product', 'danger');
+        .catch(error => console.error('Error fetching brands:', error));
+    
+    // Fetch and populate categories
+    fetch(`../database/Controllers/get_categories.php`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                data.categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.category_id;
+                    option.textContent = category.category_name;
+                    if (category.category_id == selectedCategoryId) {
+                        option.selected = true;
+                    }
+                    editProductCategory.appendChild(option);
+                });
+            }
+        })
+        .catch(error => console.error('Error fetching categories:', error));
+}
+
+// Modify the editProduct function
+function editProduct(product) {
+    document.getElementById('editProductId').value = product.id;
+    document.getElementById('editProductName').value = product.name;
+    document.getElementById('editProductPrice').value = product.price;
+    document.getElementById('editProductStocks').value = product.stocks;
+    document.getElementById('editProductDescription').value = product.description;
+    document.getElementById('editProductStatus').checked = product.status == 1;
+    
+    // Set selected values for dropdowns
+    document.getElementById('editProductBrand').value = product.brand_id;
+    document.getElementById('editProductCategory').value = product.category_id;
+    
+    // Update image preview with correct path
+    const imagePreview = document.getElementById('editProductImagePreview');
+    if (product.image) {
+        imagePreview.innerHTML = `<img src="../${product.image}" class="img-fluid rounded" style="max-height:200px;" alt="Product preview">`;
+    } else {
+        imagePreview.innerHTML = `
+            <div class="h-100 d-flex align-items-center justify-content-center bg-light rounded">
+                <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
+            </div>`;
+    }
+    
+    // Show the modal
+    new bootstrap.Modal(document.getElementById('editProductModal')).show();
+}
+
+function confirmDelete(id, name) {
+    const deleteProductId = document.getElementById('deleteProductId');
+    const deleteProductName = document.getElementById('deleteProductName');
+    
+    deleteProductId.value = id;
+    deleteProductName.textContent = name;
+    
+    // Show the modal
+    new bootstrap.Modal(document.getElementById('deleteProductModal')).show();
+}
+
+async function populateSelect(elementId, selectedValue) {
+    const select = document.getElementById(elementId);
+    const type = elementId.includes('Brand') ? 'brands' : 'categories';
+    
+    try {
+        const response = await fetch(`../database/Controllers/get_${type}.php`);
+        const data = await response.json();
+        
+        select.innerHTML = `<option value="" disabled>Select ${type.slice(0, -1)}</option>`;
+        data.forEach(item => {
+            if (item.status) {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.name;
+                option.selected = item.id == selectedValue;
+                select.appendChild(option);
+            }
         });
+    } catch (error) {
+        console.error('Error loading ' + type + ':', error);
     }
 }
 
-// Update the edit form submission handler
-document.getElementById('editProductForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    
-    fetch('../database/Controllers/update_product.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editproductModal'));
-            modal.hide();
-            showAlert(data.message || 'Product updated successfully');
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            showAlert(data.error || 'Error updating product', 'danger');
-        }
-    })
-    .catch(error => {
-        showAlert('Error updating product', 'danger');
-    });
-});
+// Add this to your existing script section
+function showDeleteModal(productId, productName) {
+    document.getElementById('deleteProductId').value = productId;
+    document.getElementById('deleteProductName').textContent = productName;
+    new bootstrap.Modal(document.getElementById('deleteProductModal')).show();
+}
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the modal element
+        const modal = document.getElementById('manageCategoriesBrandsModal');
+        
+        // Add event listener for when modal is hidden
+        modal.addEventListener('hidden.bs.modal', function () {
+            // Remove modal-backdrop if it exists
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+            // Remove modal-open class from body
+            document.body.classList.remove('modal-open');
+            // Remove inline styles from body
+            document.body.removeAttribute('style');
+        });
+    });
+</script>
 
-
-
+<!-- Bootstrap Bundle includes Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

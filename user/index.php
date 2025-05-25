@@ -12,7 +12,7 @@ session_start();
 $db_host = "127.0.0.1";
 $db_username = "root";
 $db_password = "";
-$db_name = "peasy";
+$db_name = "demopeasy";
 $db_port = 3306;
 
 $conn = new mysqli($db_host, $db_username, $db_password, $db_name, $db_port);
