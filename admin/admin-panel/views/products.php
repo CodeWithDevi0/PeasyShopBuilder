@@ -175,7 +175,8 @@ require '../database/config.php';
             echo '<div class="col">';
             echo '  <div class="card h-100 shadow-sm">';
             if (!empty($row['image'])) {
-                echo '<img src="' . htmlspecialchars($row['image']) . '" class="card-img-top" alt="' . htmlspecialchars($row['name']) . '" style="object-fit:cover; height:200px;">';
+                // Fix the image path by removing the additional 'uploads/products' since it's already in the path
+                echo '<img src="../' . htmlspecialchars($row['image']) . '" class="card-img-top" alt="' . htmlspecialchars($row['name']) . '" style="object-fit:cover; height:200px;">';
             } else {
                 echo '<div class="text-center py-5 bg-light">
                         <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
@@ -678,10 +679,15 @@ function editProduct(product) {
     document.getElementById('editProductBrand').value = product.brand_id;
     document.getElementById('editProductCategory').value = product.category_id;
     
-    // Update image preview
+    // Update image preview with correct path
     const imagePreview = document.getElementById('editProductImagePreview');
     if (product.image) {
-        imagePreview.innerHTML = `<img src="${product.image}" class="img-fluid rounded" style="max-height:200px;" alt="Product preview">`;
+        imagePreview.innerHTML = `<img src="../${product.image}" class="img-fluid rounded" style="max-height:200px;" alt="Product preview">`;
+    } else {
+        imagePreview.innerHTML = `
+            <div class="h-100 d-flex align-items-center justify-content-center bg-light rounded">
+                <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
+            </div>`;
     }
     
     // Show the modal

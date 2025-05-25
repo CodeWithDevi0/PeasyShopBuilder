@@ -25,7 +25,8 @@ try {
         // Handle image upload if present
         $image_path = null;
         if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = '../../../uploads/products/';
+            // Fix path to be inside admin-panel
+            $upload_dir = '../../uploads/products/';
             
             // Create directory if it doesn't exist
             if (!file_exists($upload_dir)) {
@@ -43,7 +44,8 @@ try {
             }
 
             if (move_uploaded_file($_FILES['product_image']['tmp_name'], $upload_path)) {
-                $image_path = 'uploads/products/' . $new_filename;
+                // Update image path to be relative to admin-panel
+                $image_path = '../../uploads/products/' . $new_filename;
             }
         }
 
