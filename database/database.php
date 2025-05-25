@@ -3,7 +3,7 @@ function getDBConnection($type = 'mysqli') {
     $db_host = "127.0.0.1";
     $db_username = "root";
     $db_password = "";
-    $db_name = "peasy";  // We'll use one database name
+    $db_name = "peasy";
     $db_port = 3306;
 
     try {
