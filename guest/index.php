@@ -30,7 +30,7 @@
           <a class="nav-link text-white" href="#"><i class="bi bi-bag fs-4"></i></a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white" href="#"><i class="bi bi-chat-left fs-4"></i></a>
+          <a class="nav-link text-white" href="../user/userCart.php"><i class="bi bi-chat-left fs-4"></i></a>
         </li>
         <li class="nav-item mx-2">
           <a class="nav-link text-white d-flex align-items-center" href="../Authentication/signIn/login.php">

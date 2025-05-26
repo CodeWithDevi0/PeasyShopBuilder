@@ -72,6 +72,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
 
+<nav class="navbar navbar-expand-lg bg-success px-4 py-2">
+  <div class="container-fluid">
+    <!-- Logo and Brand -->
+    <a class="navbar-brand d-flex align-items-center text-white" href="#">
+      <img src="../../assets/nobg.png" alt="Logo" width="120" height="120" class="me-2">
+      <strong>PEasy</strong>
+    </a>
+
+    <!-- Toggler for mobile -->
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Right Nav Icons -->
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav align-items-center">
+        <li class="nav-item mx-2">
+          <a class="nav-link text-white" href="#"><i class="bi bi-bag fs-4"></i></a>
+        </li>
+        <li class="nav-item mx-2">
+          <a class="nav-link text-white" href="#"><i class="bi bi-chat-left fs-4"></i></a>
+        </li>
+        <li class="nav-item mx-2">
+          <a class="nav-link text-white d-flex align-items-center" href="../Authentication/signIn/login.php">
+            <i class="bi bi-person-fill-exclamation fs-3 me-1"></i> <span>Login</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white d-flex align-items-center" href="../Authentication/register/create.php">
+            <i class="bi bi-person-exclamation fs-3 me-1"></i> <span>Register</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
 <?php if (!empty($message)): ?>
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="liveToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">

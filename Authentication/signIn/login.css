@@ -6,16 +6,70 @@
   box-sizing: border-box;
   font-family: "Open Sans", sans-serif;
 }
+nav.navbar {
+  width: 100%;
+  height: 70px;
+  position: fixed; 
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  padding: 10px 20px; 
+  background-color: rgb(5, 165, 90) !important;
+  backdrop-filter: blur(5px); 
+}
+
+nav.navbar a.navbar-brand {
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+nav.navbar a.navbar-brand strong {
+  margin-left: 10px;
+}
+
+nav.navbar .navbar-toggler {
+  border: none;
+  background: transparent;
+  color: #ffffff;
+}
+
+nav.navbar .navbar-toggler:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+nav.navbar .navbar-nav .nav-link {
+  color: #ffffff;
+  margin-right: 10px;
+  font-weight: 400;
+}
+
+nav.navbar .navbar-nav .nav-link:hover {
+  color: #d4d4d4;
+}
+
+.navbar .navbar-nav .nav-link i {
+  font-size: 1.2rem;
+}
+
+
+.container {
+  margin-top: 100px; 
+}
+
 body{
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  font-family: Arial, sans-serif;
   width: 100%;
   padding: 0 10px;
-  position: relative;
+  /* position: relative;
   background: url("../../assets/bgLogIn.png") no-repeat center center;
-  background-size: cover;
+  background-size: cover; */
 }
 .container {
     width: 100%;
@@ -23,7 +77,8 @@ body{
     border-radius: 15px;
     padding: 30px;
     padding-top: 7%;
-    /* border: 1px solid rgba(0, 0, 0, 0.5); */
+    position: fixed;
+
     box-shadow: 5px 15px 20px #000000;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -159,7 +214,7 @@ body{
     color: green;
   }
 
-  /* === Popup message styles (copied from create.css) === */
+
 
 .popup-message {
   position: fixed;

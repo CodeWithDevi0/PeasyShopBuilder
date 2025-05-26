@@ -78,38 +78,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet" />
 	<link rel="stylesheet" href="../register/create.css" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
 	<title>Peasy Builder | Create an Account</title>
-	
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </head>
 <body>
-	<div class="main">
-		<input type="checkbox" id="chk" aria-hidden="true">
+	
+<nav class="navbar navbar-expand-lg bg-success px-4 py-2">
+  <div class="container-fluid">
+    <!-- Logo and Brand -->
+    <a class="navbar-brand d-flex align-items-center text-white" href="#">
+      <img src="../../assets/nobg.png" alt="Logo" width="120" height="120" class="me-2">
+      <strong>PEasy</strong>
+    </a>
 
-		<div class="signup">
-			<a class="mb-5" href="../signIn/login.php">
-				<i class="bi bi-arrow-left-circle"></i>
-			</a>
+    <!-- Toggler for mobile -->
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-			<form action="" method="POST">
-				<label for="chk" aria-hidden="true">Sign up</label>
+    <!-- Right Nav Icons -->
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav align-items-center">
+        <li class="nav-item mx-2">
+          <a class="nav-link text-white" href="#"><i class="bi bi-bag fs-4"></i></a>
+        </li>
+        <li class="nav-item mx-2">
+          <a class="nav-link text-white" href="#"><i class="bi bi-chat-left fs-4"></i></a>
+        </li>
+        <li class="nav-item mx-2">
+          <a class="nav-link text-white d-flex align-items-center" href="../Authentication/signIn/login.php">
+            <i class="bi bi-person-fill-exclamation fs-1 me-1"></i> <span>Login</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white d-flex align-items-center" href="../Authentication/register/create.php">
+            <i class="bi bi-person-exclamation fs-1 me-1"></i> <span>Register</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="auth-container">
+    <div class="main" style="margin-bottom: 5%;">
+        <!-- Popup message positioned at the top -->
+        <?php if (!empty($message)): ?>
+            <div class="popup-container">
+                <?= $message ?>
+            </div>
+        <?php endif; ?>
 
-				<input type="text" name="firstname" placeholder="First Name" required />
-				<input type="text" name="lastname" placeholder="Last Name" required />
-				<input type="text" name="username" placeholder="Username" required />
-				<input type="email" name="email" placeholder="Email Address" required />
-				<input type="password" name="password" placeholder="Password" required />
-				
-				<button type="submit" style="color: #ffffff;">Create</button>
-			</form>
+        <input type="checkbox" id="chk" aria-hidden="true">
 
-			<?php if (!empty($message)): ?>
-				<div class="popup-container">
-					<?= $message ?>
-				</div>
-			<?php endif; ?>
-		</div>
-	</div>
+        <div class="signup">
+            <a class="mb-5" href="../signIn/login.php">
+                <i class="bi bi-arrow-left-circle fs-1"></i>
+            </a>
+
+            <form action="" method="POST">
+                <label for="chk" aria-hidden="true" class="fs-1">Sign up</label>
+
+                <input type="text" name="firstname" placeholder="First Name" required />
+                <input type="text" name="lastname" placeholder="Last Name" style="margin-top: 5%;" required />
+                <input type="text" name="username" placeholder="Username" style="margin-top: 5%;" required />
+                <input type="email" name="email" placeholder="Email Address" style="margin-top: 5%;" required />
+                <input type="password" name="password" placeholder="Password" style="margin-top: 5%;" required />
+                
+                <button type="submit" style="color: #ffffff; margin-top: 5%; border-radius: 10px;">Create</button>
+            </form>
+        </div>
+    </div>
+</div>
 
     <script>
         // Optional JS to completely remove the message after 5s
