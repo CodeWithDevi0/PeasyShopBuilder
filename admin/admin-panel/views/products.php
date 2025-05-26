@@ -176,7 +176,7 @@ require '../database/config.php';
             echo '  <div class="card h-100 shadow-sm">';
             if (!empty($row['image'])) {
                 // Fix the image path by removing the additional 'uploads/products' since it's already in the path
-                echo '<img src="../' . htmlspecialchars($row['image']) . '" class="card-img-top" alt="' . htmlspecialchars($row['name']) . '" style="object-fit:cover; height:200px;">';
+                echo '<img src="../../admin-panel/uploads/products/' . htmlspecialchars($row['image']) . '" class="card-img-top" alt="' . htmlspecialchars($row['name']) . '" style="object-fit:cover; height:200px;">';
             } else {
                 echo '<div class="text-center py-5 bg-light">
                         <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>

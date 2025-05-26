@@ -2,6 +2,9 @@
 require_once '../database/database.php';
 
 session_start();
+if (!isset($_SESSION['user_id'])) {
+    die("User not logged in.");
+}
 // Database connection
 $db_host = "127.0.0.1";
 $db_username = "root";
@@ -193,22 +196,28 @@ if (isset($_POST['checkout']) && !empty($cartItems)) {
         <?php foreach ($cartItems as $item): ?>
             <div class="card mb-3">
                 <div class="card-body d-flex align-items-center">
-                    <img src="../<?= htmlspecialchars($item['image']) ?>" alt="" width="180" height="180" class="me-3">
+    <?php
+    // Fix the image path for cart items
+    $imagePath = $item['image'];
+    $imageFileName = basename($imagePath); // Only the filename
+    $imagePath = "../admin/admin-panel/uploads/products/" . $imageFileName;
+    ?>
+    <img src="<?= htmlspecialchars($imagePath) ?>" alt="Product Image" width="180" height="180" class="me-3">
+    <div class="flex-grow-1">
+        <h5><?= htmlspecialchars($item['name']) ?></h5>
+        <p>Price: ₱<?= number_format($item['price'], 2) ?></p>
+        <form method="post" class="d-flex justify-content-end mb-4">
+            <input type="hidden" name="product_id" value="<?= $item['id'] ?>">
+            <input type="number" name="quantity" value="<?= $item['quantity'] ?>" min="1" class="form-control w-25 me-2">
+            <button name="update_quantity" class="btn btn-sm btn-success" style="height: 10%;">Update</button>
+        </form>
+    </div>
+    <div class="ms-3 text-end">
+        <p><strong>Subtotal:</strong> ₱<?= number_format($item['subtotal'], 2) ?></p>
+        <a href="?remove=<?= $item['id'] ?>" class="btn btn-sm btn-danger">Remove</a>
+    </div>
+</div>
 
-                    <div class="flex-grow-1">
-                        <h5><?= $item['name'] ?></h5>
-                        <p>Price: ₱<?= number_format($item['price'], 2) ?></p>
-                        <form method="post" class="d-flex justify-content-end mb-4">
-                            <input type="hidden" name="product_id" value="<?= $item['id'] ?>">
-                            <input type="number" name="quantity" value="<?= $item['quantity'] ?>" min="1" class="form-control w-25 me-2">
-                            <button name="update_quantity" class="btn btn-sm btn-success" style="height: 10%;">Update</button>
-                        </form>
-                    </div>
-                    <div class="ms-3 text-end">
-                        <p><strong>Subtotal:</strong> ₱<?= number_format($item['subtotal'], 2) ?></p>
-                        <a href="?remove=<?= $item['id'] ?>" class="btn btn-sm btn-danger">Remove</a>
-                    </div>
-                </div>
             </div>
         <?php endforeach; ?>
 

@@ -1,18 +1,16 @@
 <?php
 require_once '../database/database.php';
 session_start();
-// if (!isset($_SESSION['user_id'])) {
-//     $_SESSION['user_id'] = 123;
-//     echo "Session started and user_id set.";
-// } else {
-//     echo "User ID is still set: " . $_SESSION['user_id'];
-// }   
+
+if (!isset($_SESSION['user_id'])) {
+    die("User not logged in.");
+}
 
 // Database connection
 $db_host = "127.0.0.1";
 $db_username = "root";
 $db_password = "";
-$db_name = "demopeasy";
+$db_name = "peasy";
 $db_port = 3306;
 
 $conn = new mysqli($db_host, $db_username, $db_password, $db_name, $db_port);
@@ -94,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['address'], $_POST['co
             <a class="nav-link text-dark" href="build.php">Build A PC</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" href="#">Laptops</a>
+            <a class="nav-link text-dark" href="laptops.php">Laptops</a>
         </li>
         <li class="nav-item">
             <a class="nav-link text-dark" href="computers.php">Computers</a>
@@ -159,10 +157,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['address'], $_POST['co
                     <?php
                     $imagePath = $p['image'];
                     if (!filter_var($imagePath, FILTER_VALIDATE_URL)) {
-                        $imagePath = "assets/" . ltrim($imagePath, '/');
+                        $imagePath = "..assets/" . ltrim($imagePath, '/');
                     }
                     ?>
-                    <img src="../<?= htmlspecialchars($p['image']) ?>" class="card-img-top" alt="Product Image"
+                    <img src="../admin/admin-panel/uploads/products/<?= htmlspecialchars($p['image']) ?>" class="card-img-top" alt="Product Image"
                         style="height: 180px; object-fit: cover;">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-center"><?= htmlspecialchars($p['name']) ?></h5>

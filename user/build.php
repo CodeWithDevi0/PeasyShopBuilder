@@ -2,6 +2,9 @@
 require_once '../database/database.php';
 
 session_start();
+if (!isset($_SESSION['user_id'])) {
+    die("User not logged in.");
+}
 // Database connection
 $db_host = "127.0.0.1";
 $db_username = "root";

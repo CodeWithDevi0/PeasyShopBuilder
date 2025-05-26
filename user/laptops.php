@@ -2,6 +2,9 @@
 require_once '../database/database.php';
 
 session_start();
+if (!isset($_SESSION['user_id'])) {
+    die("User not logged in.");
+}
 // Database connection
 $db_host = "127.0.0.1";
 $db_username = "root";
@@ -17,6 +20,29 @@ $lastname = $_SESSION['user_lastname'] ?? 'Guest';
 $username = $_SESSION['user_username'] ?? 'Guest';
 $email = $_SESSION['user_email'] ?? 'Guest';
 $_SESSION['profile_picture'] = $_SESSION['profile_picture'] ?? 'default.jpg';
+
+$category_name = 'Laptop'; // Change to desired category
+
+// Check if category exists
+$stmt = $conn->prepare("SELECT * FROM categories WHERE category_name = ? AND status = 1");
+$stmt->bind_param("s", $category_name);
+$stmt->execute();
+$category = $stmt->get_result()->fetch_assoc();
+
+if ($category) {
+    // Fetch products in this category
+    $stmt = $conn->prepare("SELECT p.*, b.brand_name, c.category_name
+                             FROM products p
+                             LEFT JOIN brands b ON p.brand_id = b.brand_id
+                             LEFT JOIN categories c ON p.category_id = c.category_id
+                             WHERE c.category_name = ? AND p.status = 1");
+    $stmt->bind_param("s", $category_name);
+    $stmt->execute();
+    $products = $stmt->get_result();
+} else {
+    $products = []; // No category
+}
+
 
 ?>
 
@@ -130,14 +156,38 @@ $_SESSION['profile_picture'] = $_SESSION['profile_picture'] ?? 'default.jpg';
     </div>
   </div>
 
-  <div class="kunwari-IT text-center">
-    <p class="fs-1">
-      Under constructions pani boss (wala pa natagaag budget sa national)
-    </p>
-    <p class="fs-2 text-dark">ikawparin
-    </p>
-  </div>
-
+<div class="container py-4">
+    <h2 class="bi bi-box-seam-fill text-center"><?= htmlspecialchars($category_name) ?> Products</h2>
+    <div class="row mt-4">
+        <?php if (!empty($products)): ?>
+            <?php foreach ($products as $p): ?>
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4 d-flex align-items-stretch">
+                    <div class="card w-100">
+                        <?php
+                    $imagePath = $p['image'];
+                    if (!filter_var($imagePath, FILTER_VALIDATE_URL)) {
+                        $imagePath = "..assets/" . ltrim($imagePath, '/');
+                    }
+                    ?>
+                        <img src="../admin/admin-panel/uploads/products/<?= htmlspecialchars($p['image']) ?>" class="card-img-top" alt="Product Image"
+                        style="height: 180px; object-fit: cover;">
+                        <h5 class="card-title text-center"><?= htmlspecialchars($p['name']) ?></h5>
+                        <p class="card-text small text-muted text-center"><?= htmlspecialchars($p['description']) ?></p>
+                        <p class="text-center fw-bold text-success mb-3">₱<?= number_format($p['price'], 2) ?></p>
+                        <form method="post" action="userCart.php" class="mt-auto">
+                            <input type="hidden" name="product_id" value="<?= htmlspecialchars($p['id']) ?>">
+                            <button class="btn btn-success w-100" name="add_to_cart">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="col-12">
+                <p class="text-center">No products found in this category.</p>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
   <footer class="bg-dark text-white py-4 mt-5 m">
     <div class="container" style="margin-top: 5%;">
       <div class="row">

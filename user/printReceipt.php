@@ -1,6 +1,9 @@
 <?php
 require_once '../database/database.php';
 session_start();
+if (!isset($_SESSION['user_id'])) {
+    die("User not logged in.");
+}
 
 $conn = getDBConnection();
 
