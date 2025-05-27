@@ -216,6 +216,7 @@ if (!$stats) {
                                     default => 'bg-secondary'
                                 };
                                 
+                                // Replace the table row echo statement with:
                                 echo "<tr>
                                     <td class='ps-4 align-middle'>#{$row['order_id']}</td>
                                     <td class='align-middle'>
@@ -226,9 +227,9 @@ if (!$stats) {
                                             " . htmlspecialchars($row['f_name'] . ' ' . $row['l_name']) . "
                                         </div>
                                     </td>
-                                    <td class='align-middle'>" . htmlspecialchars($row['product_name']) . "</td>
-                                    <td class='align-middle'>" . htmlspecialchars($row['quantity']) . "</td>
-                                    <td class='align-middle'>₱" . number_format($row['unit_price'], 2) . "</td>
+                                    <td class='align-middle'>" . htmlspecialchars($row['product_name'] ?? 'N/A') . "</td>
+                                    <td class='align-middle'>" . htmlspecialchars($row['quantity'] ?? '0') . "</td>
+                                    <td class='align-middle'>₱" . number_format($row['unit_price'] ?? 0, 2) . "</td>
                                     <td class='align-middle'>
                                         <span class='badge {$statusBadgeClass}'>" . htmlspecialchars($row['shipping_status']) . "</span>
                                     </td>
@@ -401,7 +402,7 @@ function viewOrder(orderId) {
     fetch(`../database/Controllers/get_order_details.php?id=${orderId}`)
         .then(response => response.json())
         .then(data => {
-            // Update customer information
+            // Update modal title and basic info
             document.getElementById('modalOrderId').textContent = data.order_id;
             document.getElementById('customerName').textContent = `${data.f_name} ${data.l_name}`;
             document.getElementById('customerEmail').textContent = data.email;
@@ -410,31 +411,32 @@ function viewOrder(orderId) {
             document.getElementById('orderDate').textContent = new Date(data.created_at).toLocaleString();
             document.getElementById('shippingMethod').textContent = data.shipping_method || 'Standard Delivery';
 
-            // Update status with appropriate badge
+            // Update status badge
             const statusClass = data.shipping_status === 'PENDING' ? 'bg-warning' : 
-                               data.shipping_status === 'ACCEPTED' ? 'bg-info' :
-                               data.shipping_status === 'COMPLETED' ? 'bg-success' : 'bg-danger';
+                              data.shipping_status === 'ACCEPTED' ? 'bg-info' :
+                              data.shipping_status === 'COMPLETED' ? 'bg-success' : 'bg-danger';
             document.getElementById('orderStatus').innerHTML = 
                 `<span class="badge ${statusClass}">${data.shipping_status}</span>`;
 
-            // Update order items table
-            document.getElementById('orderItems').innerHTML = `
+            // Create order items table rows
+            const itemsHtml = data.items.map(item => `
                 <tr>
-                    <td>${data.product_name}</td>
-                    <td>₱${Number(data.unit_price).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                    <td>${data.quantity}</td>
-                    <td class="text-end">₱${Number(data.item_total).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                </tr>`;
-
-            // Update total
+                    <td>${item.name}</td>
+                    <td>₱${Number(item.unit_price).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                    <td>${item.quantity}</td>
+                    <td class="text-end">₱${Number(item.total).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                </tr>
+            `).join('');
+            
+            document.getElementById('orderItems').innerHTML = itemsHtml;
             document.getElementById('orderTotal').innerHTML = 
                 `₱${Number(data.total).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
-            // Show status update section for all statuses except CANCELLED
+            // Show/hide status update section
             const statusUpdateSection = document.getElementById('statusUpdateSection');
             statusUpdateSection.style.display = data.shipping_status !== 'CANCELLED' ? 'flex' : 'none';
 
-            // Disable current status in dropdown
+            // Update status select options
             const statusSelect = document.getElementById('statusSelect');
             Array.from(statusSelect.options).forEach(option => {
                 option.disabled = option.value === data.shipping_status;
