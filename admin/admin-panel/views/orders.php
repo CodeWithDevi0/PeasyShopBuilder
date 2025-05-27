@@ -1,3 +1,27 @@
+<?php
+session_start();
+require_once '../database/config.php';
+
+// Get order statistics for the cards at the top
+$statsQuery = $pdo->query("
+    SELECT 
+        COUNT(CASE WHEN shipping_status = 'PENDING' THEN 1 END) as pending_count,
+        COUNT(CASE WHEN shipping_status = 'COMPLETED' THEN 1 END) as completed_count,
+        SUM(CASE WHEN shipping_status = 'COMPLETED' THEN total ELSE 0 END) as total_revenue
+    FROM orders
+");
+$stats = $statsQuery->fetch(PDO::FETCH_ASSOC);
+
+// If no stats found, set defaults
+if (!$stats) {
+    $stats = [
+        'pending_count' => 0,
+        'completed_count' => 0,
+        'total_revenue' => 0
+    ];
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,7 +97,7 @@
                     </div>
                     <div>
                         <h6 class="card-title text-muted mb-1">Pending Orders</h6>
-                        <h4 class="mb-0 text-success">25</h4>
+                        <h4 class="mb-0 text-success"><?php echo $stats['pending_count']; ?></h4>
                     </div>
                 </div>
             </div>
@@ -86,7 +110,7 @@
                     </div>
                     <div>
                         <h6 class="card-title text-muted mb-1">Completed Orders</h6>
-                        <h4 class="mb-0 text-success">156</h4>
+                        <h4 class="mb-0 text-success"><?php echo $stats['completed_count']; ?></h4>
                     </div>
                 </div>
             </div>
@@ -99,7 +123,7 @@
                     </div>
                     <div>
                         <h6 class="card-title text-muted mb-1">Total Revenue</h6>
-                        <h4 class="mb-0 text-success">₱74,000</h4>
+                        <h4 class="mb-0 text-success">₱<?php echo number_format($stats['total_revenue'], 2); ?></h4>
                     </div>
                 </div>
             </div>
@@ -115,15 +139,16 @@
                         <span class="input-group-text bg-success text-white">
                             <i class="bi bi-search"></i>
                         </span>
-                        <input type="search" class="form-control border-success" placeholder="Search orders...">
+                        <input type="search" id="searchInput" class="form-control border-success" placeholder="Search orders...">
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <select class="form-select border-success">
-                        <option value="">Filter by Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
+                    <select class="form-select border-success" id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="ACCEPTED">Accepted</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
                     </select>
                 </div>
             </div>
@@ -150,35 +175,77 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="ps-4 align-middle">#1</td>
-                            <td class="align-middle">
-                                <div class="d-flex align-items-center">
-                                    <span class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
-                                        <i class="bi bi-person-fill text-success"></i>
-                                    </span>
-                                    Ryzen 69
-                                </div>
-                            </td>
-                            <td class="align-middle">Ryzen 5 5600X</td>
-                            <td class="align-middle">1</td>
-                            <td class="align-middle">₱4,000</td>
-                            <td class="align-middle">
-                                <span class="badge bg-warning">Pending</span>
-                            </td>
-                            <td class="align-middle text-end pe-4">
-                                <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#orderModal">
-                                    <i class="bi bi-eye-fill">view</i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-success me-1">
-                                    <i class="bi bi-check-lg">accept</i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-x-lg">reject</i>
-                                </button>
-                            </td>
-                        </tr>
-                        <!-- Add more rows with similar structure -->
+                        <?php
+                        require_once '../database/config.php';
+                        try {
+                            $search = $_GET['search'] ?? '';
+                            $status = $_GET['status'] ?? '';
+                            
+                            $query = "SELECT * FROM vw_orders WHERE 1=1";
+                            $params = [];
+                            
+                            if ($search) {
+                                $query .= " AND (
+                                    order_id LIKE ? OR 
+                                    f_name LIKE ? OR 
+                                    l_name LIKE ? OR 
+                                    product_name LIKE ? OR
+                                    contact_number LIKE ?
+                                )";
+                                $searchTerm = "%$search%";
+                                $params = array_fill(0, 5, $searchTerm);
+                            }
+                            
+                            if ($status) {
+                                $query .= " AND shipping_status = ?";
+                                $params[] = $status;
+                            }
+                            
+                            $query .= " ORDER BY created_at DESC";
+                            
+                            $stmt = $pdo->prepare($query);
+                            $stmt->execute($params);
+                            
+                            while ($row = $stmt->fetch()) {
+                                // Update the status badge class matching in the table
+                                $statusBadgeClass = match($row['shipping_status']) {
+                                    'PENDING' => 'bg-warning',
+                                    'ACCEPTED' => 'bg-info',
+                                    'COMPLETED' => 'bg-success',
+                                    'CANCELLED' => 'bg-danger',
+                                    default => 'bg-secondary'
+                                };
+                                
+                                echo "<tr>
+                                    <td class='ps-4 align-middle'>#{$row['order_id']}</td>
+                                    <td class='align-middle'>
+                                        <div class='d-flex align-items-center'>
+                                            <span class='bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-2' style='width: 35px; height: 35px;'>
+                                                <i class='bi bi-person-fill text-success'></i>
+                                            </span>
+                                            " . htmlspecialchars($row['f_name'] . ' ' . $row['l_name']) . "
+                                        </div>
+                                    </td>
+                                    <td class='align-middle'>" . htmlspecialchars($row['product_name']) . "</td>
+                                    <td class='align-middle'>" . htmlspecialchars($row['quantity']) . "</td>
+                                    <td class='align-middle'>₱" . number_format($row['unit_price'], 2) . "</td>
+                                    <td class='align-middle'>
+                                        <span class='badge {$statusBadgeClass}'>" . htmlspecialchars($row['shipping_status']) . "</span>
+                                    </td>
+                                    <td class='align-middle text-end pe-4'>
+                                        <button class='btn btn-sm btn-outline-primary me-1' 
+                                            onclick='viewOrder({$row['order_id']})' 
+                                            data-bs-toggle='modal' 
+                                            data-bs-target='#orderModal'>
+                                            <i class='bi bi-eye-fill'>view</i>
+                                        </button>
+                                    </td>
+                                </tr>";
+                            }
+                        } catch (PDOException $e) {
+                            echo "<tr><td colspan='7' class='text-center text-danger'>Error loading orders: " . htmlspecialchars($e->getMessage()) . "</td></tr>";
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div>
@@ -213,24 +280,24 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">Order Details #1</h5>
+                <h5 class="modal-title">Order Details #<span id="modalOrderId"></span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <h6 class="text-success fw-bold mb-3">Customer Information</h6>
-                        <p class="mb-1"><strong>Name:</strong> Ryzen 69</p>
-                        <p class="mb-1"><strong>Email:</strong> ryzen69@email.com</p>
-                        <p class="mb-1"><strong>Contact:</strong> +63 912 345 6789</p>
-                        <p class="mb-1"><strong>Address:</strong> Pob. Centro, Clarin, Bohol</p>
+                        <p class="mb-1"><strong>Name:</strong> <span id="customerName"></span></p>
+                        <p class="mb-1"><strong>Email:</strong> <span id="customerEmail"></span></p>
+                        <p class="mb-1"><strong>Contact:</strong> <span id="customerContact"></span></p>
+                        <p class="mb-1"><strong>Address:</strong> <span id="customerAddress"></span></p>
                     </div>
                     <div class="col-md-6">
                         <h6 class="text-success fw-bold mb-3">Order Information</h6>
-                        <p class="mb-1"><strong>Order Date:</strong> 2025-05-01</p>
-                        <p class="mb-1"><strong>Status:</strong> <span class="badge bg-warning">Pending</span></p>
+                        <p class="mb-1"><strong>Order Date:</strong> <span id="orderDate"></span></p>
+                        <p class="mb-1"><strong>Status:</strong> <span id="orderStatus"></span></p>
                         <p class="mb-1"><strong>Payment Method:</strong> Cash on Delivery</p>
-                        <p class="mb-1"><strong>Shipping Method:</strong> Third Party</p>
+                        <p class="mb-1"><strong>Shipping Method:</strong> <span id="shippingMethod"></span></p>
                     </div>
                 </div>
 
@@ -245,31 +312,32 @@
                                 <th class="text-end">Total</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <span class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
-                                            <i class="bi bi-cpu-fill text-success"></i>
-                                        </span>
-                                        Ryzen 5 5600X
-                                    </div>
-                                </td>
-                                <td>₱4,000</td>
-                                <td>1</td>
-                                <td class="text-end">₱4,000</td>
-                            </tr>
+                        <tbody id="orderItems">
+                            <!-- Order items will be inserted here -->
                         </tbody>
                         <tfoot class="bg-light">
                             <tr>
                                 <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                <td class="text-end text-success"><strong>₱4,100</strong></td>
+                                <td class="text-end text-success" id="orderTotal"></td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>
-            <div class="modal-footer">
+            <!-- Update the Order Details Modal footer -->
+            <div class="modal-footer justify-content-between">
+                <div class="d-flex align-items-center" id="statusUpdateSection">
+                    <select class="form-select me-2" id="statusSelect" style="width: auto;">
+                        <option value="">Update Status</option>
+                        <option value="PENDING">Revert to Pending</option>
+                        <option value="ACCEPTED">Accept Order</option>
+                        <option value="COMPLETED">Mark as Completed</option>
+                        <option value="CANCELLED">Reject Order</option>
+                    </select>
+                    <button type="button" class="btn btn-success" onclick="updateStatus()">
+                        <i class="bi bi-check-lg me-2"></i>Update
+                    </button>
+                </div>
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -302,6 +370,137 @@
         </div>
     </div>
 </div>
+
+<script>
+// Add this variable to store current order ID
+let currentOrderId = null;
+
+function updateOrderStatus(orderId, status) {
+    if (!confirm(`Are you sure you want to ${status.toLowerCase()} this order?`)) return;
+
+    fetch('../database/Controllers/update_order_status.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `order_id=${orderId}&status=${status}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error updating order status');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function viewOrder(orderId) {
+    currentOrderId = orderId;
+    fetch(`../database/Controllers/get_order_details.php?id=${orderId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update customer information
+            document.getElementById('modalOrderId').textContent = data.order_id;
+            document.getElementById('customerName').textContent = `${data.f_name} ${data.l_name}`;
+            document.getElementById('customerEmail').textContent = data.email;
+            document.getElementById('customerContact').textContent = data.contact_number;
+            document.getElementById('customerAddress').textContent = data.address;
+            document.getElementById('orderDate').textContent = new Date(data.created_at).toLocaleString();
+            document.getElementById('shippingMethod').textContent = data.shipping_method || 'Standard Delivery';
+
+            // Update status with appropriate badge
+            const statusClass = data.shipping_status === 'PENDING' ? 'bg-warning' : 
+                               data.shipping_status === 'ACCEPTED' ? 'bg-info' :
+                               data.shipping_status === 'COMPLETED' ? 'bg-success' : 'bg-danger';
+            document.getElementById('orderStatus').innerHTML = 
+                `<span class="badge ${statusClass}">${data.shipping_status}</span>`;
+
+            // Update order items table
+            document.getElementById('orderItems').innerHTML = `
+                <tr>
+                    <td>${data.product_name}</td>
+                    <td>₱${Number(data.unit_price).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                    <td>${data.quantity}</td>
+                    <td class="text-end">₱${Number(data.item_total).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                </tr>`;
+
+            // Update total
+            document.getElementById('orderTotal').innerHTML = 
+                `₱${Number(data.total).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+
+            // Show status update section for all statuses except CANCELLED
+            const statusUpdateSection = document.getElementById('statusUpdateSection');
+            statusUpdateSection.style.display = data.shipping_status !== 'CANCELLED' ? 'flex' : 'none';
+
+            // Disable current status in dropdown
+            const statusSelect = document.getElementById('statusSelect');
+            Array.from(statusSelect.options).forEach(option => {
+                option.disabled = option.value === data.shipping_status;
+            });
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function updateStatus() {
+    const statusSelect = document.getElementById('statusSelect');
+    const newStatus = statusSelect.value;
+    
+    if (!newStatus) {
+        alert('Please select a status');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to ${newStatus.toLowerCase()} this order?`)) return;
+
+    fetch('../database/Controllers/update_order_status.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `order_id=${currentOrderId}&status=${newStatus}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal and reload page
+            const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
+            modal.hide();
+            location.reload();
+        } else {
+            alert('Error updating order status');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Add this to your existing script section
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    
+    function filterOrders() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            const orderText = row.textContent.toLowerCase();
+            const statusBadge = row.querySelector('.badge');
+            const statusText = statusBadge ? statusBadge.textContent : '';
+            
+            const matchesSearch = orderText.includes(searchTerm);
+            const matchesStatus = !statusValue || statusText === statusValue;
+            
+            row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+        });
+    }
+    
+    searchInput.addEventListener('input', filterOrders);
+    statusFilter.addEventListener('change', filterOrders);
+});
+</script>
     
 </body>
 </html>
