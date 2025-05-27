@@ -17,23 +17,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         
-        $stmt = $conn->prepare("SELECT id, f_name, l_name, username, email, password FROM users WHERE email = ? AND password = ?");
+        // Update query to include is_admin
+        $stmt = $conn->prepare("SELECT id, f_name, l_name, username, email, password, is_admin FROM users WHERE email = ? AND password = ?");
         $stmt->bind_param("ss", $email, $password);
         $stmt->execute();
-        $result = $stmt->get_result(); // 
+        $result = $stmt->get_result();
         $user = $result->fetch_assoc();
 
         if ($user) {
-            
             $_SESSION['user_logged_in'] = true;
-            $_SESSION['user_firstname'] = $user['f_name']; 
-            $_SESSION['user_lastname'] = $user['l_name']; 
-            $_SESSION['user_username'] = $user['username']; 
-            $_SESSION['user_email'] = $user['email']; 
-            $_SESSION['user_id'] = $user['id']; // ✅ This is what your profile page needs
+            $_SESSION['user_firstname'] = $user['f_name'];
+            $_SESSION['user_lastname'] = $user['l_name'];
+            $_SESSION['user_username'] = $user['username'];
+            $_SESSION['user_email'] = $user['email'];
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['is_admin'] = $user['is_admin'];
 
-
-            header("Location: ../../user/index.php");
+            // Redirect based on user type
+            if ($user['is_admin']) {
+                header("Location: ../../admin/admin-panel/views/index.php");
+            } else {
+                header("Location: ../../user/index.php");
+            }
             exit();
         } else {
           $_SESSION['login_message'] = "Invalid email or password.";

@@ -257,7 +257,7 @@
                 <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">
                     <i class="bi bi-x-lg me-2"></i>Cancel
                 </button>
-                <a href="../../../guest/sample.php" class="btn btn-danger">
+                <a href="../../../guest/index.php" class="btn btn-danger">
                     <i class="bi bi-check-lg me-2"></i>Yes, Sign Out
                 </a>
             </div>
