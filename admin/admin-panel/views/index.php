@@ -22,6 +22,25 @@ try {
     error_log("Error fetching dashboard data: " . $e->getMessage());
     die("An error occurred while loading the dashboard.");
 }
+
+// Get order statistics for the cards at the top
+$statsQuery = $pdo->query("
+    SELECT 
+        COUNT(CASE WHEN shipping_status = 'PENDING' THEN 1 END) as pending_count,
+        COUNT(CASE WHEN shipping_status = 'COMPLETED' THEN 1 END) as completed_count,
+        SUM(CASE WHEN shipping_status = 'COMPLETED' THEN total ELSE 0 END) as total_revenue
+    FROM orders
+");
+$stats = $statsQuery->fetch(PDO::FETCH_ASSOC);
+
+// If no stats found, set defaults
+if (!$stats) {
+    $stats = [
+        'pending_count' => 0,
+        'completed_count' => 0,
+        'total_revenue' => 0
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,8 +118,8 @@ try {
                         <i class="bi bi-currency-dollar text-success fs-4"></i>
                     </div>
                     <div>
-                        <h6 class="card-title text-muted mb-1">Total Sales</h6>
-                        <h4 class="mb-0 text-success">₱<?php echo number_format($stats['total_sales'], 2); ?></h4>
+                        <h6 class="card-title text-muted mb-1">Total Revenue</h6>
+                        <h4 class="mb-0 text-success">₱<?php echo number_format($stats['total_revenue'], 2); ?></h4>
                     </div>
                 </div>
             </div>

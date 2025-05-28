@@ -107,12 +107,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <a class="nav-link text-white" href="#"><i class="bi bi-chat-left fs-4"></i></a>
         </li>
         <li class="nav-item mx-2">
-          <a class="nav-link text-white d-flex align-items-center" href="../Authentication/signIn/login.php">
+          <a class="nav-link text-white d-flex align-items-center" href="../signIn/login.php">
             <i class="bi bi-person-fill-exclamation fs-1 me-1"></i> <span>Login</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white d-flex align-items-center" href="../Authentication/register/create.php">
+          <a class="nav-link text-white d-flex align-items-center" href="../register/create.php">
             <i class="bi bi-person-exclamation fs-1 me-1"></i> <span>Register</span>
           </a>
         </li>

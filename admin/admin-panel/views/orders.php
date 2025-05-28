@@ -119,11 +119,14 @@ if (!$stats) {
             <div class="card border-success shadow-sm">
                 <div class="card-body d-flex align-items-center">
                     <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                        <i class="bi bi-currency-dollar text-success fs-4"></i>
+                        <i class="bi bi-cart-fill text-success fs-4"></i>
                     </div>
                     <div>
-                        <h6 class="card-title text-muted mb-1">Total Revenue</h6>
-                        <h4 class="mb-0 text-success">₱<?php echo number_format($stats['total_revenue'], 2); ?></h4>
+                        <h6 class="card-title text-muted mb-1">Total Orders</h6>
+                        <?php
+                        $orderCount = $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn();
+                        ?>
+                        <h4 class="mb-0 text-success"><?php echo number_format($orderCount); ?></h4>
                     </div>
                 </div>
             </div>
