@@ -136,12 +136,56 @@ $_SESSION['profile_picture'] = $_SESSION['profile_picture'] ?? 'default.jpg';
 
       <div class="mt-4 text-end">
         <h5 class="text-start">Total: ₱<span id="totalPrice">0.00</span></h5>
-        <button class="btn btn-secondary w-25 fs-5 mt-4">Add To Cart</button>
-        <button class="btn btn-success w-25 fs-5 mt-4">Buy Now</button>
+        <button class="btn btn-warning mt-3"><i class="bi bi-cart me-2 "></i>Add To Cart</button>
+        <button class="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#buildSummaryModal">
+          <i class="bi bi-bag me-2"></i>Buy Now
+        </button>
       </div>
     </div>
   </div>
 </div>
+
+
+
+<!-- modals -->
+
+<div class="modal fade" id="buildSummaryModal" tabindex="-1" aria-labelledby="buildSummaryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="buildSummaryModalLabel">Build Summary</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <table class="table table-bordered table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>Category</th>
+              <th>Selected Part</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody id="buildSummaryTableBody">
+            <!-- Dynamically populated rows will go here -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="2" class="text-end">Total:</th>
+              <th id="modalTotalPrice">₱0.00</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success">Proceed to Checkout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 <div class="modal fade" id="mainModal" tabindex="-1">
@@ -299,6 +343,125 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+function updateSelection(categoryId) {
+    const selectElement = document.getElementById('select' + categoryId);
+    const selectedValue = selectElement.value;
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    
+    // Update the selection display
+    const displayElement = document.getElementById("selected" + categoryId);
+    if (displayElement) {
+        displayElement.textContent = selectedValue || "None";
+        displayElement.parentElement.classList.toggle('text-success', selectedValue !== '');
+    }
+    
+    // Update total price
+    updateTotalPrice();
+    
+    // Update radar chart
+    updateRadarChart();
+}
+
+// Function to update total price
+function updateTotalPrice() {
+    let total = 0;
+    const selects = document.querySelectorAll('select[id^="select"]');
+    
+    selects.forEach(select => {
+        const selectedOption = select.options[select.selectedIndex];
+        if (selectedOption && selectedOption.dataset.price) {
+            total += parseFloat(selectedOption.dataset.price);
+        }
+    });
+    
+    document.getElementById('totalPrice').textContent = total.toLocaleString('en-PH', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+// Function to update radar chart
+function updateRadarChart() {
+    const selects = document.querySelectorAll('select[id^="select"]');
+    const data = Array.from(selects).map(select => select.selectedIndex);
+    
+    const chartData = {
+        labels: Array.from(selects).map(select => select.previousElementSibling.textContent),
+        datasets: [{
+            label: "Performance",
+            data: data,
+            backgroundColor: "rgba(40,167,69,0.4)",
+            borderColor: "rgba(40,167,69,1)",
+            borderWidth: 1
+        }]
+    };
+
+    if (window.radarChartInstance) {
+        window.radarChartInstance.data = chartData;
+        window.radarChartInstance.update();
+    }
+}
+
+// Initialize radar chart on page load
+document.addEventListener("DOMContentLoaded", () => {
+    const ctx = document.getElementById("radarChart").getContext("2d");
+    window.radarChartInstance = new Chart(ctx, {
+        type: "radar",
+        data: {
+            labels: Array.from(document.querySelectorAll('select[id^="select"]')).map(
+                select => select.previousElementSibling.textContent
+            ),
+            datasets: [{
+                label: "Performance",
+                data: new Array(document.querySelectorAll('select[id^="select"]').length).fill(0),
+                backgroundColor: "rgba(40,167,69,0.4)",
+                borderColor: "rgba(40,167,69,1)",
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 10
+                }
+            }
+        }
+    });
+});
+
+// Update modal table dynamically when modal is opened
+const buildSummaryModal = document.getElementById('buildSummaryModal');
+buildSummaryModal.addEventListener('show.bs.modal', () => {
+    const tbody = document.getElementById('buildSummaryTableBody');
+    tbody.innerHTML = ''; // Clear existing rows
+    
+    let total = 0;
+    const selects = document.querySelectorAll('select[id^="select"]');
+    
+    selects.forEach(select => {
+        const selectedOption = select.options[select.selectedIndex];
+        const category = select.previousElementSibling.textContent;
+        const partName = selectedOption.value || 'None';
+        const price = selectedOption.dataset.price ? parseFloat(selectedOption.dataset.price) : 0;
+
+        // Append row
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${category}</td>
+            <td>${partName}</td>
+            <td>₱${price.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+        `;
+        tbody.appendChild(row);
+        
+        total += price;
+    });
+    
+    document.getElementById('modalTotalPrice').textContent = '₱' + total.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+});
+
 </script>
 </body>
 </html>
