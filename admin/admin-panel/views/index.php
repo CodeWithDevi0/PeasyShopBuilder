@@ -36,7 +36,6 @@ try {
     <title>Admin Panel</title>
 </head>
 <body>
-
 <!-- Sidebar -->
 <div class="sidebar bg-success text-white" id="sidebar">
   <div class="sidebar-header p-3 border-bottom border-light-subtle">

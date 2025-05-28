@@ -105,36 +105,36 @@
 </div>
 </div>
 <!-- display dri from admin created products -->
-<div class="product-container">
-    <?php
-    require_once '../admin/admin-panel/database/config.php';
-    
-    try {
-        $stmt = $pdo->query("CALL sp_get_products()");
-        while ($row = $stmt->fetch()) {
-            echo '<div class="product-card">';
-            if (!empty($row['image'])) {
-                echo '<img src="../admin/admin-panel/' . htmlspecialchars($row['image']) . '" alt="' . htmlspecialchars($row['name']) . '">';
-            } else {
-                echo '<div class="text-center py-5 bg-light">
-                        <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
-                      </div>';
-            }
-            echo '<div class="product-info">
-                    <h3 class="product-title">' . htmlspecialchars($row['name']) . '</h3>
-                    <p class="product-description">' . htmlspecialchars($row['description'] ?? 'No description available') . '</p>
-                    <p class="product-price">₱' . number_format($row['price'], 2) . '</p>
-                    <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add to Cart</a>
-                    <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
-                  </div>';
-            echo '</div>';
-        }
-        $stmt->closeCursor();
-    } catch (PDOException $e) {
-        echo '<div class="alert alert-danger">Error loading products: ' . htmlspecialchars($e->getMessage()) . '</div>';
-    }
-    ?>
-</div>
+  <div class="product-container">
+      <?php
+      require_once '../admin/admin-panel/database/config.php';
+      
+      try {
+          $stmt = $pdo->query("CALL sp_get_products()");
+          while ($row = $stmt->fetch()) {   
+              echo '<div class="product-card">';
+              if (!empty($row['image'])) {
+                  echo '<img src="../admin/admin-panel/uploads ' . htmlspecialchars($row['image']) . '" alt="' . htmlspecialchars($row['name']) . '">';
+              } else {
+                  echo '<div class="text-center py-5 bg-light">
+                          <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>
+                        </div>';
+              }
+              echo '<div class="product-info">
+                      <h3 class="product-title">' . htmlspecialchars($row['name']) . '</h3>
+                      <p class="product-description">' . htmlspecialchars($row['description'] ?? 'No description available') . '</p>
+                      <p class="product-price">₱' . number_format($row['price'], 2) . '</p>
+                      <a href="#" class="product-button btn btn-secondary" data-bs-toggle="modal" data-bs-target="#signInModal">Add to Cart</a>
+                      <a href="#" class="product-button btn btn-success" data-bs-toggle="modal" data-bs-target="#signInModal">Buy Now</a>
+                    </div>';
+              echo '</div>';
+          }
+          $stmt->closeCursor();
+      } catch (PDOException $e) {
+          echo '<div class="alert alert-danger">Error loading products: ' . htmlspecialchars($e->getMessage()) . '</div>';
+      }
+      ?>
+  </div>
 <!-- New Arrivals Section -->
 <h2 style="margin: 20px; font-size: 24px;" class="text-center" >NEW ARRIVALS</h2>
 <div class="product-container">
@@ -148,7 +148,7 @@
       while ($row = $stmt->fetch()) {
           echo '<div class="product-card">';
           if (!empty($row['image'])) {
-              echo '<img src="../admin/admin-panel/' . htmlspecialchars($row['image']) . '" alt="' . htmlspecialchars($row['name']) . '">';
+              echo '<img src="../admin/admin-panel/uploads' . htmlspecialchars($row['image']) . '" alt="' . htmlspecialchars($row['name']) . '">';
           } else {
               echo '<div class="text-center py-5 bg-light">
                       <i class="bi bi-box-seam text-muted" style="font-size: 5rem;"></i>

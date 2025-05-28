@@ -227,9 +227,9 @@ if (!$stats) {
                                             " . htmlspecialchars($row['f_name'] . ' ' . $row['l_name']) . "
                                         </div>
                                     </td>
-                                    <td class='align-middle'>" . htmlspecialchars($row['product_name'] ?? 'N/A') . "</td>
-                                    <td class='align-middle'>" . htmlspecialchars($row['quantity'] ?? '0') . "</td>
-                                    <td class='align-middle'>₱" . number_format($row['unit_price'] ?? 0, 2) . "</td>
+                                    <td class='align-middle'>" . htmlspecialchars($row['product_names'] ?? 'N/A') . "</td>
+                                    <td class='align-middle'>" . htmlspecialchars($row['quantities'] ?? '0') . "</td>
+                                    <td class='align-middle'>₱" . number_format($row['unit_prices'] ?? 0, 2) . "</td>
                                     <td class='align-middle'>
                                         <span class='badge {$statusBadgeClass}'>" . htmlspecialchars($row['shipping_status']) . "</span>
                                     </td>

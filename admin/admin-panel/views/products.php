@@ -109,7 +109,7 @@ require '../database/config.php';
                         <tr>
                             <th class="py-3 ps-4">ID</th>
                             <th class="py-3">Name</th>
-                            <th class="py-3">Brand</th>
+                            <th class="py-3">Brand</th>         
                             <th class="py-3">Category</th>
                             <th class="py-3">Stocks</th>
                             <th class="py-3">Price</th>
