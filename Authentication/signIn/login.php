@@ -33,6 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['is_admin'] = $user['is_admin'];
 
+            // Log the successful login with proper user_id and username
+            $userId = $user['id'];  // Store user ID in a variable
+            $username = $user['username'];  // Store username in a variable
+            $logStmt = $conn->prepare("INSERT INTO users_logs (user_id, username, action_type, status) VALUES (?, ?, 'LOGIN', 'SUCCESS')");
+            $logStmt->bind_param("is", $userId, $username);
+            $logStmt->execute();
+
             // Redirect based on user type
             if ($user['is_admin']) {
                 header("Location: ../../admin/admin-panel/views/index.php");
@@ -41,9 +48,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             exit();
         } else {
+          // Log the failed login attempt
+          $logStmt = $conn->prepare("INSERT INTO users_logs (username, action_type, status) VALUES (?, 'LOGIN', 'FAILED')");
+          $logStmt->bind_param("s", $email);
+          $logStmt->execute();
+
           $_SESSION['login_message'] = "Invalid email or password.";
-            header("Location: login.php");
-            exit();
+          header("Location: login.php");
+          exit();
         }
     } catch (Exception $e) {
         $_SESSION['login_message'] = "<div class='popup-message error'>Login error: " . $e->getMessage() . "</div>";
