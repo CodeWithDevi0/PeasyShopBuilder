@@ -130,65 +130,22 @@ if (empty($preBuiltOrders)) {
     <div class="row">
         <div class="col-12">
             <h2 class="text-center mb-4">Pre-Built PC Orders</h2>
-            
-            <!-- Stats Cards -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <div class="card border-success shadow-sm">
-                        <div class="card-body d-flex align-items-center">
-                            <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                                <i class="bi bi-pc-display text-success fs-4"></i>
-                            </div>
-                            <div>
-                                <h6 class="card-title text-muted mb-1">Pending Orders</h6>
-                                <h4 class="mb-0 text-success">25</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-success shadow-sm">
-                        <div class="card-body d-flex align-items-center">
-                            <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                                <i class="bi bi-check-circle-fill text-success fs-4"></i>
-                            </div>
-                            <div>
-                                <h6 class="card-title text-muted mb-1">Accepted Orders</h6>
-                                <h4 class="mb-0 text-success">156</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-success shadow-sm">
-                        <div class="card-body d-flex align-items-center">
-                            <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                                <i class="bi bi-x-circle-fill text-success fs-4"></i>
-                            </div>
-                            <div>
-                                <h6 class="card-title text-muted mb-1">Rejected Orders</h6>
-                                <h4 class="mb-0 text-success">12</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Search and Filter Row -->
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
-                    <input type="search" class="form-control border-success" placeholder="Search orders...">
+                    <input type="search" class="form-control border-success" id="searchInput" placeholder="Search by ID or customer name...">
                 </div>
-                <div class="col-md-3">
-                    <select class="form-select border-success">
-                        <option value="">Filter by Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="accepted">Accepted</option>
-                        <option value="rejected">Rejected</option>
+                <div class="col-md-4">
+                    <select class="form-select border-success" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="ACCEPTED">Accepted</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <input type="date" class="form-control border-success">
+                <div class="col-md-4">
+                    <input type="date" class="form-control border-success" id="dateFilter">
                 </div>
             </div>
 
@@ -453,37 +410,82 @@ function getStatusBadgeColor(status) {
 }
 
 function filterOrders() {
-    const searchInput = document.querySelector('input[type="search"]').value.toLowerCase();
-    const statusFilter = document.querySelector('select.form-select').value.toUpperCase();
-    const dateFilter = document.querySelector('input[type="date"]').value;
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const dateFilter = document.getElementById('dateFilter').value;
     
     const rows = document.querySelectorAll('tbody tr');
+    let visibleCount = 0;
     
     rows.forEach(row => {
-        const id = row.querySelector('td:nth-child(1)').textContent;
-        const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-        const date = row.querySelector('td:nth-child(4)').textContent;
-        const status = row.querySelector('.badge').textContent.toUpperCase();
+        // Skip the "No pre-built orders found" row if it exists
+        if (row.cells.length === 1 && row.cells[0].colSpan > 1) {
+            return;
+        }
+
+        const orderId = row.cells[0].textContent.trim();
+        const customerName = row.cells[1].textContent.trim().toLowerCase();
+        const orderDate = row.cells[3].textContent.trim();
+        const status = row.querySelector('.badge')?.textContent.trim() || '';
         
+        // Search filter - match order ID or customer name
         const matchesSearch = !searchInput || 
-            customerName.includes(searchInput) || 
-            id.includes(searchInput);
-        const matchesStatus = !statusFilter || status === statusFilter;
-        const matchesDate = !dateFilter || date === formatDate(dateFilter);
+            orderId.toLowerCase().includes(searchInput) || 
+            customerName.includes(searchInput);
         
-        row.style.display = (matchesSearch && matchesStatus && matchesDate) ? '' : 'none';
+        // Status filter
+        const matchesStatus = !statusFilter || status === statusFilter;
+        
+        // Date filter - convert both dates to YYYY-MM-DD format for comparison
+        const rowDate = convertDateFormat(orderDate);
+        const matchesDate = !dateFilter || rowDate === dateFilter;
+        
+        const shouldShow = matchesSearch && matchesStatus && matchesDate;
+        row.style.display = shouldShow ? '' : 'none';
+        
+        if (shouldShow) visibleCount++;
     });
+
+    // Show "No results found" if no matches
+    const tbody = document.querySelector('tbody');
+    if (visibleCount === 0 && (searchInput || statusFilter || dateFilter)) {
+        // Remove existing "no results" row if it exists
+        const existingNoResults = tbody.querySelector('.no-results-row');
+        if (existingNoResults) existingNoResults.remove();
+        
+        // Add "no results" row
+        const noResultsRow = document.createElement('tr');
+        noResultsRow.className = 'no-results-row';
+        noResultsRow.innerHTML = `
+            <td colspan="7" class="text-center py-4">
+                <i class="bi bi-search text-muted fs-1 d-block mb-2"></i>
+                No orders match your search criteria
+            </td>
+        `;
+        tbody.appendChild(noResultsRow);
+    } else {
+        // Remove "no results" row if there are matches
+        const existingNoResults = tbody.querySelector('.no-results-row');
+        if (existingNoResults) existingNoResults.remove();
+    }
 }
 
-function formatDate(date) {
-    const d = new Date(date);
-    return d.toLocaleDateString('en-GB').split('/').join('-');
+function convertDateFormat(dateStr) {
+    // Convert from DD-MM-YYYY to YYYY-MM-DD
+    const [day, month, year] = dateStr.split('-');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 }
 
-// Add event listeners for filters
-document.querySelector('input[type="search"]').addEventListener('input', filterOrders);
-document.querySelector('select.form-select').addEventListener('change', filterOrders);
-document.querySelector('input[type="date"]').addEventListener('change', filterOrders);
+// Add event listeners for real-time filtering
+document.getElementById('searchInput').addEventListener('input', filterOrders);
+document.getElementById('statusFilter').addEventListener('change', filterOrders);
+document.getElementById('dateFilter').addEventListener('change', filterOrders);
+
+// Initialize filtering on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial filter in case there are URL parameters
+    filterOrders();
+});
 </script>
 </body>
 </html>

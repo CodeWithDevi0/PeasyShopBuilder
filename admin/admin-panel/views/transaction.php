@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../css/table1.css">
     <link rel="stylesheet" href="../css/style-sidebar.css">
-    <title>Document</title>
+    <title>Transaction Logs</title>
 </head>
 <body>
 <!-- Sidebar -->
@@ -68,83 +68,73 @@
         <div class="col-12">
             <h2 class="text-center mb-4">Transaction History</h2>
             
-            <!-- Search and Filter Row -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <input type="search" class="form-control border-success" placeholder="Search transactions...">
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select border-success">
-                        <option value="">All Status</option>
-                        <option value="accepted">Accepted</option>
-                        <option value="deleted">Deleted</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <input type="date" class="form-control border-success">
+            <!-- Toggle Buttons -->
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-success active" id="ordersLogBtn">
+                            <i class="bi bi-cart-check me-2"></i>Orders Logs
+                        </button>
+                        <button type="button" class="btn btn-outline-success" id="prebuiltLogBtn">
+                            <i class="bi bi-pc-display me-2"></i>Pre-built Orders Logs
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Transaction Table -->
-            <div class="table-responsive">
+            <!-- Search and Filter Row -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <input type="search" class="form-control border-success" id="searchInput" placeholder="Search transactions...">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select border-success" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="ACCEPTED">Accepted</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" class="form-control border-success" id="dateFilter">
+                </div>
+            </div>
+
+            <!-- Orders Log Table -->
+            <div class="table-responsive" id="ordersLogTable">
                 <table class="table table-hover border" style="min-width: 800px;">
                     <thead class="bg-success text-white">
                         <tr>
-                            <th class="py-3" style="width: 10%">Order ID</th>
-                            <th class="py-3" style="width: 20%">Name</th>
-                            <th class="py-3" style="width: 20%">Date & Status</th>
-                            <th class="py-3" style="width: 15%">Contact</th>
-                            <th class="py-3" style="width: 15%">Total Price</th>
-                            <th class="py-3 text-end" style="width: 20%">Actions</th>
+                            <th class="py-3">Order ID</th>
+                            <th class="py-3">Customer</th>
+                            <th class="py-3">Action</th>
+                            <th class="py-3">Status</th>
+                            <th class="py-3">Total</th>
+                            <th class="py-3">Date & Time</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="ordersLogBody">
+                        <!-- Will be populated by AJAX -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pre-built Orders Log Table -->
+            <div class="table-responsive" id="prebuiltLogTable" style="display: none;">
+                <table class="table table-hover border" style="min-width: 800px;">
+                    <thead class="bg-success text-white">
                         <tr>
-                            <td class="align-middle">#1</td>
-                            <td class="align-middle">
-                                <div class="d-flex align-items-center">
-                                    <span class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
-                                        <i class="bi bi-person-fill text-success"></i>
-                                    </span>
-                                    Kenneth Lico
-                                </div>
-                            </td>
-                            <td class="align-middle">
-                                19-03-2024
-                                <br>
-                                <span class="badge bg-success">Accepted</span>
-                            </td>
-                            <td class="align-middle">0983 0962 971</td>
-                            <td class="align-middle">₱36,000</td>
-                            <td class="align-middle text-end">
-                                <button class="btn btn-sm btn-outline-success">
-                                    <i class="bi bi-eye-fill me-1"></i>View Details
-                                </button>
-                            </td>
+                            <th class="py-3">Order ID</th>
+                            <th class="py-3">Customer</th>
+                            <th class="py-3">Action</th>
+                            <th class="py-3">Status</th>
+                            <th class="py-3">Total</th>
+                            <th class="py-3">Date & Time</th>
                         </tr>
-                        <tr>
-                            <td class="align-middle">#2</td>
-                            <td class="align-middle">
-                                <div class="d-flex align-items-center">
-                                    <span class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
-                                        <i class="bi bi-person-fill text-success"></i>
-                                    </span>
-                                    Herald Elivira
-                                </div>
-                            </td>
-                            <td class="align-middle">
-                                25-03-2024
-                                <br>
-                                <span class="badge bg-danger">Rejected</span>
-                            </td>
-                            <td class="align-middle">0920 3994 929</td>
-                            <td class="align-middle">₱25,000</td>
-                            <td class="align-middle text-end">
-                                <button class="btn btn-sm btn-outline-success">
-                                    <i class="bi bi-eye-fill me-1"></i>View Details
-                                </button>
-                            </td>
-                        </tr>
+                    </thead>
+                    <tbody id="prebuiltLogBody">
+                        <!-- Will be populated by AJAX -->
                     </tbody>
                 </table>
             </div>
@@ -179,5 +169,174 @@
         </div>
     </div>
 </div>
+
+<!-- Add this before closing body tag -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ordersLogBtn = document.getElementById('ordersLogBtn');
+    const prebuiltLogBtn = document.getElementById('prebuiltLogBtn');
+    const ordersLogTable = document.getElementById('ordersLogTable');
+    const prebuiltLogTable = document.getElementById('prebuiltLogTable');
+
+    // Load orders log by default
+    console.log('Page loaded, attempting to load order logs...');
+    loadOrdersLog();
+
+    ordersLogBtn.addEventListener('click', function() {
+        ordersLogBtn.classList.add('active');
+        ordersLogBtn.classList.remove('btn-outline-success');
+        ordersLogBtn.classList.add('btn-success');
+        prebuiltLogBtn.classList.remove('active');
+        prebuiltLogBtn.classList.add('btn-outline-success');
+        prebuiltLogBtn.classList.remove('btn-success');
+        ordersLogTable.style.display = 'block';
+        prebuiltLogTable.style.display = 'none';
+        loadOrdersLog();
+    });
+
+    prebuiltLogBtn.addEventListener('click', function() {
+        prebuiltLogBtn.classList.add('active');
+        prebuiltLogBtn.classList.remove('btn-outline-success');
+        prebuiltLogBtn.classList.add('btn-success');
+        ordersLogBtn.classList.remove('active');
+        ordersLogBtn.classList.add('btn-outline-success');
+        ordersLogBtn.classList.remove('btn-success');
+        prebuiltLogTable.style.display = 'block';
+        ordersLogTable.style.display = 'none';
+        loadPrebuiltLog();
+    });
+
+    // Add event listeners for filters
+    document.getElementById('searchInput').addEventListener('input', handleFilters);
+    document.getElementById('statusFilter').addEventListener('change', handleFilters);
+    document.getElementById('dateFilter').addEventListener('change', handleFilters);
+});
+
+function handleFilters() {
+    if (document.getElementById('ordersLogTable').style.display !== 'none') {
+        loadOrdersLog();
+    } else {
+        loadPrebuiltLog();
+    }
+}
+
+function loadOrdersLog() {
+    const searchValue = document.getElementById('searchInput').value;
+    const statusValue = document.getElementById('statusFilter').value;
+    const dateValue = document.getElementById('dateFilter').value;
+
+    // Add loading indicator
+    const tbody = document.getElementById('ordersLogBody');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+
+    fetch(`../database/Controllers/get_order_logs.php?search=${searchValue}&status=${statusValue}&date=${dateValue}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Orders Log Data:', data);
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No records found</td></tr>';
+                return;
+            }
+            
+            data.forEach(log => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>#${log.order_id}</td>
+                        <td>${log.username || 'N/A'}</td>
+                        <td><span class="badge bg-${getActionBadgeColor(log.action_type)}">${log.action_type}</span></td>
+                        <td><span class="badge bg-${getStatusBadgeColor(log.shipping_status)}">${log.shipping_status}</span></td>
+                        <td>₱${parseFloat(log.total_amount).toLocaleString()}</td>
+                        <td>${formatDate(log.action_timestamp)}</td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+        });
+}
+
+function getActionBadgeColor(action) {
+    switch(action) {
+        case 'CREATED': return 'success';
+        case 'UPDATED': return 'info';
+        case 'DELETED': return 'danger';
+        default: return 'secondary';
+    }
+}
+
+function getStatusBadgeColor(status) {
+    switch(status) {
+        case 'PENDING': return 'warning';
+        case 'ACCEPTED': return 'info';
+        case 'COMPLETED': return 'success';
+        case 'CANCELLED': return 'danger';
+        default: return 'secondary';
+    }
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: '2-digit',
+        hour: '2-digit', 
+        minute: '2-digit'
+    });
+}
+
+function loadPrebuiltLog() {
+    const searchValue = document.getElementById('searchInput').value;
+    const statusValue = document.getElementById('statusFilter').value;
+    const dateValue = document.getElementById('dateFilter').value;
+
+    // Add loading indicator
+    const tbody = document.getElementById('prebuiltLogBody');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+
+    fetch(`../database/Controllers/get_prebuilt_logs.php?search=${searchValue}&status=${statusValue}&date=${dateValue}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Prebuilt Log Data:', data);
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No records found</td></tr>';
+                return;
+            }
+            
+            data.forEach(log => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>#${log.order_id}</td>
+                        <td>${log.username || 'N/A'}</td>
+                        <td><span class="badge bg-info">${log.action}</span></td>
+                        <td><span class="badge bg-${getStatusBadgeColor(log.status)}">${log.status}</span></td>
+                        <td>₱${parseFloat(log.total_price).toLocaleString()}</td>
+                        <td>${formatDate(log.timestamp)}</td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+        });
+}
+</script>
 </body>
 </html>
