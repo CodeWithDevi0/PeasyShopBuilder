@@ -70,7 +70,7 @@ try {
       </a>
       <ul class="collapse nav flex-column ms-3" id="logsSubmenu">
         <li class="nav-item">
-          <a class="nav-link text-white" href="#" style="transition: all 0.3s ease;">
+          <a class="nav-link text-white" href="user_logs.php" style="transition: all 0.3s ease;">
             <i class="bi bi-person-fill-lock me-2"></i>Login Logs
           </a>
         </li>
