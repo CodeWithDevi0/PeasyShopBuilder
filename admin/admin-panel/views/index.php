@@ -253,15 +253,127 @@ try {
 
     <!-- Chart Section -->
     <div class="card border-success shadow-sm mb-4">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">Orders This Week</h5>
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Completed Orders This Week</h5>
+            <div class="d-flex align-items-center">
+                <small class="text-light me-3" id="lastUpdate"></small>
+                <div class="chart-type-toggle">
+                    <button class="btn btn-outline-light btn-sm active" onclick="toggleChartData('regular')">Regular Orders</button>
+                    <button class="btn btn-outline-light btn-sm" onclick="toggleChartData('prebuilt')">Pre-Built Orders</button>
+                </div>
+            </div>
         </div>
-        <div class="card-body" style="padding-bottom: 40px;"> <!-- Added padding-bottom -->
-            <div class="chart-container">
-                <div class="bar-chart" id="barChart"></div>
+        <div class="card-body">
+            <div style="position: relative; height: 300px;">
+                <canvas id="ordersChart"></canvas>
             </div>
         </div>
     </div>
+
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+    let weeklyStats = <?php echo json_encode($dashboardStats['weekly_stats']); ?>;
+    let currentChart = null;
+    let currentType = 'regular';
+
+    function createChart(type) {
+        const ctx = document.getElementById('ordersChart').getContext('2d');
+        const data = weeklyStats[type];
+        
+        // If there's an existing chart, destroy it
+        if (currentChart) {
+            currentChart.destroy();
+        }
+
+        currentChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.date),
+                datasets: [{
+                    label: type === 'regular' ? 'Completed Regular Orders' : 'Completed Pre-Built Orders',
+                    data: data.map(item => item.count),
+                    backgroundColor: 'rgba(25, 135, 84, 0.2)',
+                    borderColor: 'rgb(25, 135, 84)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Daily Completed Orders (Last 7 Days)',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Completed Orders: ${context.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Update last update time
+        const lastUpdate = new Date(weeklyStats.last_update);
+        document.getElementById('lastUpdate').textContent = `Last updated: ${lastUpdate.toLocaleTimeString()}`;
+    }
+
+    function toggleChartData(type) {
+        currentType = type;
+        // Update button states
+        document.querySelectorAll('.chart-type-toggle button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        // Update chart
+        createChart(type);
+    }
+
+    // Function to refresh chart data
+    async function refreshChartData() {
+        try {
+            const response = await fetch('../database/Controllers/get_weekly_stats.php');
+            const newData = await response.json();
+            weeklyStats = newData;
+            createChart(currentType);
+        } catch (error) {
+            console.error('Error refreshing chart data:', error);
+        }
+    }
+
+    // Initialize with regular orders
+    createChart('regular');
+
+    // Refresh data every 5 minutes
+    setInterval(refreshChartData, 300000);
+
+    // Refresh on window focus
+    window.addEventListener('focus', refreshChartData);
+
+    // Handle responsive resize
+    window.addEventListener('resize', () => {
+        if (currentChart) {
+            currentChart.resize();
+        }
+    });
+    </script>
 
     <!-- Products Table -->
     <div class="card border-success shadow-sm">
@@ -334,38 +446,6 @@ try {
         </div>
     </div>
 </div>
-
-<!-- bar chart -->
-<script>
-    const data = <?php echo json_encode($weeklyOrders); ?>;
-    const maxVal = Math.max(...data.map(d => d.value));
-    const chart = document.getElementById("barChart");
-
-    data.forEach(item => {
-        const heightPercent = (item.value / maxVal) * 100;
-        const height = (heightPercent * (chart.clientHeight - 60)) / 100; 
-
-        const barItem = document.createElement("div");
-        barItem.className = "bar-item";
-
-        const bar = document.createElement("div");
-        bar.className = "bar";
-        bar.style.height = `${height}px`;
-
-        const barValue = document.createElement("div");
-        barValue.className = "bar-value";
-        barValue.textContent = item.value;
-
-        const barLabel = document.createElement("div");
-        barLabel.className = "bar-label";
-        barLabel.textContent = item.date;
-
-        barItem.appendChild(bar);
-        barItem.appendChild(barValue);
-        barItem.appendChild(barLabel);
-        chart.appendChild(barItem);
-    });
-</script>
 
 <script>
 function updateStatsDisplay() {
