@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['address'], $_POST['co
                         $imagePath = "..assets/" . ltrim($imagePath, '/');
                     }
                     ?>
-                    <img src="../admin/admin-panel/uploads/products/<?= htmlspecialchars($p['image']) ?>" class="card-img-top" alt="Product Image"
+                    <img src="../admin/admin-panel/<?= htmlspecialchars($p['image']) ?>" class="card-img-top" alt="Product Image"
                         style="height: 180px; object-fit: cover;">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-center"><?= htmlspecialchars($p['name']) ?></h5>

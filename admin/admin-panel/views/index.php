@@ -1,12 +1,14 @@
 <?php
 session_start();
 require '../database/config.php';
+require '../database/Controllers/get_dashboard_stats.php';
 
 try {
-    // Get dashboard stats
-    $stmt = $pdo->query("CALL sp_get_dashboard_stats()");
-    $stats = $stmt->fetch(PDO::FETCH_ASSOC);
-    $stmt->closeCursor(); // Important: close the cursor for next query
+    // Get all dashboard stats
+    $dashboardStats = getAllDashboardStats();
+    if (!$dashboardStats) {
+        throw new Exception("Failed to get dashboard stats");
+    }
 
     // Get recent products
     $stmt = $pdo->query("CALL sp_get_recent_products()");
@@ -18,28 +20,9 @@ try {
     $weeklyOrders = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $stmt->closeCursor();
 
-} catch (PDOException $e) {
-    error_log("Error fetching dashboard data: " . $e->getMessage());
+} catch (Exception $e) {
+    error_log("Error in dashboard: " . $e->getMessage());
     die("An error occurred while loading the dashboard.");
-}
-
-// Get order statistics for the cards at the top
-$statsQuery = $pdo->query("
-    SELECT 
-        COUNT(CASE WHEN shipping_status = 'PENDING' THEN 1 END) as pending_count,
-        COUNT(CASE WHEN shipping_status = 'COMPLETED' THEN 1 END) as completed_count,
-        SUM(CASE WHEN shipping_status = 'COMPLETED' THEN total ELSE 0 END) as total_revenue
-    FROM orders
-");
-$stats = $statsQuery->fetch(PDO::FETCH_ASSOC);
-
-// If no stats found, set defaults
-if (!$stats) {
-    $stats = [
-        'pending_count' => 0,
-        'completed_count' => 0,
-        'total_revenue' => 0
-    ];
 }
 ?>
 <!DOCTYPE html>
@@ -110,16 +93,33 @@ if (!$stats) {
 <div class="container-fluid" style="margin-left: 250px; padding: 20px; max-width: calc(100% - 250px);">
     <!-- Stats Cards -->
     <div class="row g-4 mb-4">
+        <!-- Order Type Filter -->
+        <div class="col-12 mb-3">
+            <div class="card border-success shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <label class="me-3 mb-0">Filter Stats:</label>
+                        <select id="orderTypeFilter" class="form-select w-auto" onchange="updateStatsDisplay()">
+                            <option value="regular">Regular Orders</option>
+                            <option value="prebuilt">Pre-Built Orders</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-md-4">
             <div class="card border-success shadow-sm">
                 <div class="card-body d-flex align-items-center">
-                    <!-- Total Sales Card -->
                     <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
                         <i class="bi bi-currency-dollar text-success fs-4"></i>
                     </div>
                     <div>
                         <h6 class="card-title text-muted mb-1">Total Revenue</h6>
-                        <h4 class="mb-0 text-success">₱<?php echo number_format($stats['total_revenue'], 2); ?></h4>
+                        <h4 class="mb-0 text-success">
+                            <span class="regular-stats">₱<?php echo number_format($dashboardStats['orders']['total_revenue'], 2); ?></span>
+                            <span class="prebuilt-stats" style="display: none;">₱<?php echo number_format($dashboardStats['pre_built']['total_revenue'], 2); ?></span>
+                        </h4>
                     </div>
                 </div>
             </div>
@@ -132,10 +132,10 @@ if (!$stats) {
                     </div>
                     <div>
                         <h6 class="card-title text-muted mb-1">Total Orders</h6>
-                        <?php
-                        $orderCount = $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn();
-                        ?>
-                        <h4 class="mb-0 text-success"><?php echo number_format($orderCount); ?></h4>
+                        <h4 class="mb-0 text-success">
+                            <span class="regular-stats"><?php echo number_format($dashboardStats['orders']['total_orders']); ?></span>
+                            <span class="prebuilt-stats" style="display: none;"><?php echo number_format($dashboardStats['pre_built']['total_count']); ?></span>
+                        </h4>
                     </div>
                 </div>
             </div>
@@ -148,10 +148,103 @@ if (!$stats) {
                     </div>
                     <div>
                         <h6 class="card-title text-muted mb-1">Total Products</h6>
-                        <?php
-                        $productCount = $pdo->query("SELECT COUNT(*) FROM products WHERE status = 1")->fetchColumn();
-                        ?>
-                        <h4 class="mb-0 text-success"><?php echo number_format($productCount); ?></h4>
+                        <h4 class="mb-0 text-success"><?php echo number_format($dashboardStats['products']['total_products']); ?></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Stats Cards Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-success shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="bi bi-hourglass-split text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Pending Orders</h6>
+                        <h4 class="mb-0 text-success">
+                            <span class="regular-stats"><?php echo number_format($dashboardStats['orders']['pending_orders']); ?></span>
+                            <span class="prebuilt-stats" style="display: none;"><?php echo number_format($dashboardStats['pre_built']['pending_count']); ?></span>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Accepted Orders</h6>
+                        <h4 class="mb-0 text-success">
+                            <span class="regular-stats"><?php echo number_format($dashboardStats['orders']['accepted_orders']); ?></span>
+                            <span class="prebuilt-stats" style="display: none;"><?php echo number_format($dashboardStats['pre_built']['accepted_count']); ?></span>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="bi bi-check-all text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Completed Orders</h6>
+                        <h4 class="mb-0 text-success">
+                            <span class="regular-stats"><?php echo number_format($dashboardStats['orders']['completed_orders']); ?></span>
+                            <span class="prebuilt-stats" style="display: none;"><?php echo number_format($dashboardStats['pre_built']['completed_count']); ?></span>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-success shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="bi bi-x-circle text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Cancelled Orders</h6>
+                        <h4 class="mb-0 text-success">
+                            <span class="regular-stats"><?php echo number_format($dashboardStats['orders']['cancelled_orders']); ?></span>
+                            <span class="prebuilt-stats" style="display: none;"><?php echo number_format($dashboardStats['pre_built']['cancelled_count']); ?></span>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="bi bi-people-fill text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Total Users</h6>
+                        <h4 class="mb-0 text-success"><?php echo number_format($dashboardStats['users']['total_users']); ?></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="bi bi-person-fill-gear text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title text-muted mb-1">Total Admins</h6>
+                        <h4 class="mb-0 text-success"><?php echo number_format($dashboardStats['users']['total_admins']); ?></h4>
                     </div>
                 </div>
             </div>
@@ -272,6 +365,23 @@ if (!$stats) {
         barItem.appendChild(barLabel);
         chart.appendChild(barItem);
     });
+</script>
+
+<script>
+function updateStatsDisplay() {
+    const filterValue = document.getElementById('orderTypeFilter').value;
+    
+    // Hide all stats first
+    document.querySelectorAll('.regular-stats, .prebuilt-stats').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Show the selected stats
+    const statsToShow = filterValue === 'regular' ? '.regular-stats' : '.prebuilt-stats';
+    document.querySelectorAll(statsToShow).forEach(el => {
+        el.style.display = 'inline';
+    });
+}
 </script>
 
 </body>
