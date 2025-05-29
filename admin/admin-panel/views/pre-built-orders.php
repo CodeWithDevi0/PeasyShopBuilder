@@ -1,3 +1,67 @@
+<?php
+require_once '../database/config.php';
+
+function getPreBuiltOrders() {
+    try {
+        $conn = getDBConnection();
+        
+        if (!$conn) {
+            throw new Exception("Database connection failed");
+        }
+
+        // Updated SQL query to join with users_profile
+        $sql = "SELECT po.*, u.username, u.email, up.contact_number as phone 
+                FROM pre_built_orders po
+                JOIN users u ON po.user_id = u.id
+                LEFT JOIN users_profile up ON u.id = up.users_id
+                ORDER BY po.created_at DESC";
+                
+        $result = $conn->query($sql);
+        
+        if (!$result) {
+            throw new Exception("Query failed: " . $conn->error);
+        }
+        
+        $orders = $result->fetch_all(MYSQLI_ASSOC);
+        
+        // Debug order count
+        error_log("Found " . count($orders) . " orders");
+        
+        return $orders;
+        
+    } catch (Exception $e) {
+        error_log("Error in getPreBuiltOrders: " . $e->getMessage());
+        return [];
+    } finally {
+        if (isset($conn)) {
+            $conn->close();
+        }
+    }
+}
+
+// Get status badge color helper function
+function getStatusBadgeColor($status) {
+    $colors = [
+        'PENDING' => 'warning',
+        'ACCEPTED' => 'success',
+        'COMPLETED' => 'primary',
+        'CANCELLED' => 'danger'
+    ];
+    return $colors[$status] ?? 'secondary';
+}
+
+// Get the orders
+$preBuiltOrders = getPreBuiltOrders();
+
+// Debug output
+if (empty($preBuiltOrders)) {
+    echo "<!-- Debug: No orders found -->";
+} else {
+    echo "<!-- Debug: Found " . count($preBuiltOrders) . " orders -->";
+    echo "<!-- Debug Data: " . htmlspecialchars(json_encode($preBuiltOrders)) . " -->";
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -148,35 +212,44 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <?php if (empty($preBuiltOrders)): ?>
                                 <tr>
-                                    <td class="ps-4 align-middle">1</td>
-                                    <td class="align-middle">
-                                        <div class="d-flex align-items-center">
-                                            <span class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
-                                                <i class="bi bi-person-fill text-success"></i>
-                                            </span>
-                                            Kenneth Lico
-                                        </div>
-                                    </td>
-                                    <td class="align-middle">Gaming PC</td>
-                                    <td class="align-middle">20-04-2025</td>
-                                    <td class="align-middle">₱25,000</td>
-                                    <td class="align-middle">
-                                        <span class="badge bg-warning">Pending</span>
-                                    </td>
-                                    <td class="align-middle text-end pe-4">
-                                        <button class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#viewModal">
-                                            <i class="bi bi-eye-fill me-1"></i>View
-                                        </button>
-                                        <button class="btn btn-outline-success btn-sm me-1">
-                                            <i class="bi bi-check-lg me-1"></i>Accept
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm">
-                                            <i class="bi bi-x-lg me-1"></i>Reject
-                                        </button>
+                                    <td colspan="7" class="text-center py-4">
+                                        <i class="bi bi-inbox text-muted fs-1 d-block mb-2"></i>
+                                        No pre-built orders found
                                     </td>
                                 </tr>
-                                <!-- Add more rows with similar structure -->
+                                <?php else: ?>
+                                    <?php foreach ($preBuiltOrders as $order): ?>
+                                    <tr>
+                                        <td class="ps-4 align-middle"><?= htmlspecialchars($order['id']) ?></td>
+                                        <td class="align-middle">
+                                            <div class="d-flex align-items-center">
+                                                <span class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                                                    <i class="bi bi-person-fill text-success"></i>
+                                                </span>
+                                                <?= htmlspecialchars($order['username']) ?>
+                                            </div>
+                                        </td>
+                                        <td class="align-middle">Custom Build</td>
+                                        <td class="align-middle"><?= date('d-m-Y', strtotime($order['created_at'])) ?></td>
+                                        <td class="align-middle">₱<?= number_format($order['total_price'], 2) ?></td>
+                                        <td class="align-middle">
+                                            <span class="badge bg-<?= getStatusBadgeColor($order['status']) ?>">
+                                                <?= htmlspecialchars($order['status']) ?>
+                                            </span>
+                                        </td>
+                                        <td class="align-middle text-end pe-4">
+                                            <button class="btn btn-outline-primary btn-sm" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#viewModal"
+                                                    onclick="viewPreBuiltOrder(<?= $order['id'] ?>)">
+                                                <i class="bi bi-eye-fill me-1"></i>View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -198,15 +271,15 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <h6 class="text-muted">Customer Information</h6>
-                        <p class="mb-1"><strong>Name:</strong> Kenneth Lico</p>
-                        <p class="mb-1"><strong>Email:</strong> kenneth@email.com</p>
-                        <p class="mb-1"><strong>Phone:</strong> +63 912 345 6789</p>
+                        <p class="mb-1"><strong>Name:</strong> </p>
+                        <p class="mb-1"><strong>Email:</strong> </p>
+                        <p class="mb-1"><strong>Phone:</strong> </p>
                     </div>
                     <div class="col-md-6">
                         <h6 class="text-muted">Order Information</h6>
-                        <p class="mb-1"><strong>Order ID:</strong> #1</p>
-                        <p class="mb-1"><strong>Date:</strong> 20-04-2025</p>
-                        <p class="mb-1"><strong>Status:</strong> <span class="badge bg-warning">Pending</span></p>
+                        <p class="mb-1"><strong>Order ID:</strong> </p>
+                        <p class="mb-1"><strong>Date:</strong> </p>
+                        <p class="mb-1"><strong>Status:</strong> <span class="badge bg-warning"></span></p>
                     </div>
                 </div>
                 <h6 class="text-muted">PC Specifications</h6>
@@ -231,9 +304,21 @@
                     </tbody>
                 </table>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-            </div>
+            <div class="modal-footer justify-content-between">
+    <div class="d-flex align-items-center" id="statusUpdateSection">
+        <select class="form-select me-2" id="statusSelect" style="width: auto;">
+            <option value="">Update Status</option>
+            <option value="PENDING">Revert to Pending</option>
+            <option value="ACCEPTED">Accept Order</option>
+            <option value="COMPLETED">Mark as Completed</option>
+            <option value="CANCELLED">Reject Order</option>
+        </select>
+        <button type="button" class="btn btn-success" onclick="updatePreBuiltOrderStatus()">
+            <i class="bi bi-check-lg me-2"></i>Update
+        </button>
+    </div>
+    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+</div>
         </div>
     </div>
 </div>
@@ -264,5 +349,141 @@
         </div>
     </div>
 </div>
+
+<script>
+function viewPreBuiltOrder(orderId) {
+    const modal = document.getElementById('viewModal');
+    modal.setAttribute('data-order-id', orderId);
+
+    fetch(`../database/Controllers/get_prebuilt_order.php?id=${orderId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update customer information
+            const customerInfo = modal.querySelector('.col-md-6:first-child');
+            const name = data.f_name && data.l_name ? 
+                        `${data.f_name} ${data.l_name}` : 
+                        data.username;
+            
+            customerInfo.innerHTML = `
+                <h6 class="text-muted">Customer Information</h6>
+                <p class="mb-1"><strong>Name:</strong> ${name}</p>
+                <p class="mb-1"><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                <p class="mb-1"><strong>Phone:</strong> ${data.contact_number || 'N/A'}</p>
+            `;
+
+            // Update order information
+            const orderInfo = modal.querySelector('.col-md-6:last-child');
+            orderInfo.innerHTML = `
+                <h6 class="text-muted">Order Information</h6>
+                <p class="mb-1"><strong>Order ID:</strong> #${data.id}</p>
+                <p class="mb-1"><strong>Date:</strong> ${new Date(data.created_at).toLocaleDateString('en-GB')}</p>
+                <p class="mb-1"><strong>Status:</strong> <span class="badge bg-${getStatusBadgeColor(data.status)}">${data.status}</span></p>
+                <p class="mb-1"><strong>Total Price:</strong> ₱${parseFloat(data.total_price).toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
+            `;
+
+            // Update PC specifications
+            const specTable = modal.querySelector('.table tbody');
+            if (data.items && data.items.length > 0) {
+                specTable.innerHTML = data.items.map(item => `
+                    <tr>
+                        <th style="width: 150px;">${item.category_name}</th>
+                        <td>
+                            ${item.product_name}
+                            <br>
+                            <small class="text-muted">₱${parseFloat(item.price).toLocaleString('en-PH', {minimumFractionDigits: 2})}</small>
+                        </td>
+                    </tr>
+                `).join('');
+            } else {
+                specTable.innerHTML = `
+                    <tr>
+                        <td colspan="2" class="text-center">No components found</td>
+                    </tr>
+                `;
+            }
+
+            // Set current status in select
+            document.getElementById('statusSelect').value = data.status;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading order details');
+        });
+}
+
+function updatePreBuiltOrderStatus() {
+    const modal = document.getElementById('viewModal');
+    const orderId = modal.getAttribute('data-order-id');
+    const newStatus = document.getElementById('statusSelect').value;
+    
+    if (!newStatus) {
+        alert('Please select a status');
+        return;
+    }
+
+    fetch('../database/Controllers/update_prebuilt_order_status.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            orderId: orderId,
+            status: newStatus
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Order status updated successfully');
+            location.reload();
+        } else {
+            alert('Error updating order status');
+        }
+    });
+}
+
+function getStatusBadgeColor(status) {
+    const colors = {
+        'PENDING': 'warning',
+        'ACCEPTED': 'success',
+        'COMPLETED': 'primary',
+        'CANCELLED': 'danger'
+    };
+    return colors[status] || 'secondary';
+}
+
+function filterOrders() {
+    const searchInput = document.querySelector('input[type="search"]').value.toLowerCase();
+    const statusFilter = document.querySelector('select.form-select').value.toUpperCase();
+    const dateFilter = document.querySelector('input[type="date"]').value;
+    
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const id = row.querySelector('td:nth-child(1)').textContent;
+        const customerName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const date = row.querySelector('td:nth-child(4)').textContent;
+        const status = row.querySelector('.badge').textContent.toUpperCase();
+        
+        const matchesSearch = !searchInput || 
+            customerName.includes(searchInput) || 
+            id.includes(searchInput);
+        const matchesStatus = !statusFilter || status === statusFilter;
+        const matchesDate = !dateFilter || date === formatDate(dateFilter);
+        
+        row.style.display = (matchesSearch && matchesStatus && matchesDate) ? '' : 'none';
+    });
+}
+
+function formatDate(date) {
+    const d = new Date(date);
+    return d.toLocaleDateString('en-GB').split('/').join('-');
+}
+
+// Add event listeners for filters
+document.querySelector('input[type="search"]').addEventListener('input', filterOrders);
+document.querySelector('select.form-select').addEventListener('change', filterOrders);
+document.querySelector('input[type="date"]').addEventListener('change', filterOrders);
+</script>
 </body>
 </html>

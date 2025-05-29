@@ -120,13 +120,16 @@ $_SESSION['profile_picture'] = $_SESSION['profile_picture'] ?? 'default.jpg';
       <h4>Select Your Components</h4>
       <?php foreach ($categories as $categoryId => $category): ?>
       <div class="form-group mb-4">
-        <label for="select<?= $categoryId ?>" class="form-label"><?= htmlspecialchars($category['name']) ?></label>
+        <label for="select<?= $categoryId ?>" class="form-label">
+            <?= htmlspecialchars($category['name']) ?>
+        </label>
         <select class="form-select" id="select<?= $categoryId ?>" 
-                onchange="updateSelection('<?= $categoryId ?>')" required>
+                onchange="updateSelection('<?= $categoryId ?>')">
             <option value="" data-price="0">-- Select <?= htmlspecialchars($category['name']) ?> --</option>
             <?php foreach ($category['products'] as $product): ?>
-            <option value="<?= htmlspecialchars($product['name']) ?>" 
-                    data-price="<?= $product['price'] ?>">
+            <option value="<?= $product['id'] ?>" 
+                    data-price="<?= $product['price'] ?>"
+                    data-name="<?= htmlspecialchars($product['name']) ?>">
                 <?= htmlspecialchars($product['name']) ?> - ₱<?= number_format($product['price'], 2) ?>
             </option>
             <?php endforeach; ?>
@@ -260,14 +263,13 @@ $_SESSION['profile_picture'] = $_SESSION['profile_picture'] ?? 'default.jpg';
 <script>
 function updateSelection(categoryId) {
     const selectElement = document.getElementById('select' + categoryId);
-    const selectedValue = selectElement.value;
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     
     // Update the selection display
     const displayElement = document.getElementById("selected" + categoryId);
     if (displayElement) {
-        displayElement.textContent = selectedValue || "None";
-        displayElement.parentElement.classList.toggle('text-success', selectedValue !== '');
+        displayElement.textContent = selectedOption.dataset.name || "None";
+        displayElement.parentElement.classList.toggle('text-success', selectedOption.value !== '');
     }
     
     // Update total price
@@ -436,7 +438,7 @@ document.addEventListener("DOMContentLoaded", () => {
 const buildSummaryModal = document.getElementById('buildSummaryModal');
 buildSummaryModal.addEventListener('show.bs.modal', () => {
     const tbody = document.getElementById('buildSummaryTableBody');
-    tbody.innerHTML = ''; // Clear existing rows
+    tbody.innerHTML = '';
     
     let total = 0;
     const selects = document.querySelectorAll('select[id^="select"]');
@@ -444,10 +446,9 @@ buildSummaryModal.addEventListener('show.bs.modal', () => {
     selects.forEach(select => {
         const selectedOption = select.options[select.selectedIndex];
         const category = select.previousElementSibling.textContent;
-        const partName = selectedOption.value || 'None';
+        const partName = selectedOption.dataset.name || 'None';
         const price = selectedOption.dataset.price ? parseFloat(selectedOption.dataset.price) : 0;
 
-        // Append row
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${category}</td>
@@ -462,6 +463,51 @@ buildSummaryModal.addEventListener('show.bs.modal', () => {
     document.getElementById('modalTotalPrice').textContent = '₱' + total.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 });
 
+// Update the checkout button handler
+document.querySelector('.modal-footer .btn-success').addEventListener('click', function() {
+    const selections = {};
+    const selects = document.querySelectorAll('select[id^="select"]');
+    let hasAnySelection = false;
+    
+    selects.forEach(select => {
+        const categoryId = select.id.replace('select', '');
+        const selectedOption = select.options[select.selectedIndex];
+        
+        if (selectedOption && selectedOption.value) {
+            hasAnySelection = true;
+            selections[categoryId] = {
+                productId: parseInt(selectedOption.value), // Convert to integer
+                price: parseFloat(selectedOption.dataset.price)
+            };
+        }
+    });
+
+    if (!hasAnySelection) {
+        alert('Please select at least one component before proceeding.');
+        return;
+    }
+
+    fetch('save_prebuilt_order.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(selections)
+    })
+    .then(response => response.json())
+    .then(data => {  // Add the arrow => here
+        if (data.success) {
+            alert('Your pre-built PC order has been submitted successfully!');
+            window.location.href = 'profile.php';
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting your order.');
+    });
+});
 </script>
 </body>
 </html>
@@ -481,6 +527,7 @@ function getProductsByCategory() {
                 if (!isset($categories[$categoryId])) {
                     $categories[$categoryId] = [
                         'name' => $row['category_name'],
+                        'required' => $row['is_required'],
                         'products' => []
                     ];
                 }
